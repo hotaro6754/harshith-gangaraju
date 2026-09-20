@@ -42,7 +42,9 @@ function buildSpine(seed: string): string {
     // Pinches toward the centre at both ends so the line starts and finishes
     // on the rail rather than drifting off it.
     const taper = Math.sin(u * Math.PI) * 0.5 + 0.5;
-    const x = W / 2 + (noise(u * 7) - 0.5) * W * 0.85 * taper;
+    // Gentle. At full amplitude this reads as a scribble pinned to the
+    // edge of the page rather than as the ridge line continuing.
+    const x = W / 2 + (noise(u * 4) - 0.5) * W * 0.5 * taper;
     points.push([x, u * H]);
   }
 

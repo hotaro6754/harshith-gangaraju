@@ -29,18 +29,21 @@ export function Nav() {
   useEffect(() => {
     const onScroll = () => {
       // The nav hides only because the hero is a composition that a bar sits
-      // badly on top of. On a page with no hero — or one too short to ever
-      // scroll past the threshold — hiding it would simply make the site
-      // unnavigable, so it shows immediately.
+      // badly on top of. With no hero — or a page too short to scroll — it
+      // shows immediately, because hiding it would just make the site
+      // unnavigable.
       const hero = document.querySelector('.hero');
       if (!hero) {
         setPast(true);
         return;
       }
 
-      const reachable = document.documentElement.scrollHeight - window.innerHeight;
-      const threshold = Math.min(window.innerHeight * 0.9, reachable * 0.35);
-      setPast(window.scrollY > threshold);
+      // Measured against the pin spacer, not an arbitrary fraction of the
+      // viewport. The hero is pinned for multiples of a screen height, so a
+      // "0.9 viewports" threshold put the bar on top of the composition it
+      // exists to stay out of.
+      const spacer = hero.closest('.pin-spacer') ?? hero;
+      setPast(spacer.getBoundingClientRect().bottom <= 96);
     };
 
     onScroll();

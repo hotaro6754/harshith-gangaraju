@@ -205,42 +205,25 @@ export function Hero() {
             HEADLINE_OUT,
           );
 
-          // ---- Kinetic bands -------------------------------------------
-          // Strictly after the headline is gone — overlapping them was what
-          // made the type look mangled, two competing display layers in the
-          // same optical space.
-          //
-          // Demoted to texture. Giant scrolling words are the most common
-          // effect on the web; as the main event they make the whole hero
-          // look generic. Running faint, behind the depth markers, they give
-          // the middle of the descent something moving without competing for
-          // the read.
-          const BANDS_IN = HANDOVER;
+          // ---- Threshold band ------------------------------------------
+          // One line, crossing once, as the hero hands over. It arrives with
+          // the threshold rather than washing across the whole descent — see
+          // KineticBand for why that changed.
+          const BAND_IN = 0.76;
 
           timeline.fromTo(
             '.kinetic-band',
             { opacity: 0 },
-            { opacity: 1, ease: 'none', duration: 0.12 },
-            BANDS_IN,
+            { opacity: 1, ease: 'none', duration: 0.08 },
+            BAND_IN,
           );
 
-          const rows = gsap.utils.toArray<HTMLElement>('[data-band-row]');
-          rows.forEach((row, i) => {
-            const reverse = row.dataset.direction === 'reverse';
-            const distance = (mobile ? 16 : 30) + i * 5;
-            timeline.fromTo(
-              row.querySelector('.kinetic-track'),
-              { xPercent: reverse ? -distance : distance - 33.333 },
-              {
-                xPercent: reverse ? distance - 33.333 : -distance,
-                ease: 'none',
-                duration: 1 - BANDS_IN,
-              },
-              BANDS_IN,
-            );
-          });
-
-          timeline.to('.kinetic-band', { opacity: 0, ease: 'none', duration: 0.1 }, 0.9);
+          timeline.fromTo(
+            '.kinetic-track',
+            { xPercent: 4 },
+            { xPercent: -34, ease: 'none', duration: 1 - BAND_IN },
+            BAND_IN,
+          );
 
           // ---- Chrome --------------------------------------------------
           // The name and disciplines belong to the opening frame, so they
@@ -294,6 +277,7 @@ export function Hero() {
             it reads as a caption over a picture; centred, it becomes the
             composed first frame of the site, and the landscape resolves
             around it rather than beside it. */}
+        <div className="hero-composition">
         <p className="hero-name">
           <span>Harshith</span>
           <span>Gangaraju</span>
@@ -312,6 +296,7 @@ export function Hero() {
         <p className="hero-disciplines" data-hero-sub>
           Cybersecurity · AI · Infrastructure
         </p>
+        </div>
 
         {/* A real link, not a decorative cue: it is reachable by keyboard and
             actually goes where it says. The drawn line is the flourish; the
@@ -330,6 +315,10 @@ export function Hero() {
       {/* The nearest range, its fog and the ground wash — drawn over the
           headline, so the closest mountains occlude the type. */}
       <EnvironmentScene id={HERO_ENVIRONMENT} part="front" />
+
+      {/* Dissolves the scene's floor into the colour the page continues in,
+          so the hero resolves into the descent instead of being cropped. */}
+      <div className="hero-seam" aria-hidden="true" />
 
       <div className="grain" />
 
