@@ -2,49 +2,53 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { ParticleField } from './ParticleField';
+
 /**
- * The opening frame.
+ * The opening frame: a system coming online inside the Moonlit world.
  *
- * Two rules shape this. It does not fake progress — there is no invented
- * percentage counting to 100 while nothing loads. It reports two things that
- * are genuinely true or not yet true: whether the display face has arrived,
- * and whether the environment has painted a frame. When both are real, it
- * leaves.
+ * The idea borrowed from the reference is a contained field that is
+ * initialising — a boundary with something alive inside it. What is
+ * deliberately *not* borrowed is how that reference behaves: it runs on a
+ * hardcoded three-second timer and displays a percentage that counts to 100
+ * while nothing is actually loading. Both are a tax on the visitor dressed as
+ * craft.
  *
- * And it does not tax people for being fast. There is a short floor purely so
- * the reveal is not a flicker, and on a warm cache the whole thing is over in
- * a few hundred milliseconds. A three-second hold would be theatre charged to
- * the visitor.
+ * So this reports two things that are genuinely true or not yet true — has
+ * the display face arrived, has the scene painted a frame — and leaves when
+ * they are. On a warm cache that is a few hundred milliseconds.
  *
- * It runs once per session. An opening frame is an opening, and replaying it
- * every time someone comes back from a case study would be an obstacle
- * wearing an opening's clothes.
+ * It shares the hero's palette, typeface, easing and ink colour, because the
+ * point is continuity: the same world, before and after. The background is
+ * the environment's own sky, so the fade resolves into the hero rather than
+ * cutting to it.
  */
 
 const SESSION_KEY = 'aizen:opened';
 /** Long enough that the reveal reads as a transition, not a flash. */
-const MIN_VISIBLE_MS = 420;
+const MIN_VISIBLE_MS = 620;
 /** Hard ceiling. Nothing may hold the site behind this overlay for longer. */
 const FAILSAFE_MS = 2200;
+/** The dispersal runs while the overlay fades; they finish together. */
+const EXIT_MS = 760;
 
 interface Step {
   id: string;
+  index: string;
   label: string;
 }
 
 const STEPS: Step[] = [
-  { id: 'type', label: 'Typefaces' },
-  { id: 'scene', label: 'Environment' },
+  { id: 'type', index: '01', label: 'Typefaces' },
+  { id: 'scene', index: '02', label: 'Environment' },
 ];
 
 export function Preloader() {
-  // Starts false so the server and the first client render agree; the overlay
-  // itself is server-rendered and removed here, which is what makes the
-  // no-JS case safe.
   const [done, setDone] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [ready, setReady] = useState<Record<string, boolean>>({});
-  // Both are written in an effect, never during render: `Date.now` is impure,
-  // and a ref initialised during render would be too.
+  // Both written in an effect, never during render: `Date.now` is impure, and
+  // a ref initialised during render would be too.
   const startedAt = useRef<number | null>(null);
   const instant = useRef(false);
 
@@ -86,11 +90,11 @@ export function Preloader() {
     // layout and paint at least once.
     requestAnimationFrame(() => requestAnimationFrame(() => mark('scene')));
 
-    // Failsafe, and not a workaround — a page opened in a background tab is
-    // a normal thing, and there `requestAnimationFrame` is suspended
-    // indefinitely. Without this the opening frame would wait for a paint
-    // that is never coming and hold the whole site behind it. An overlay that
-    // can trap the page is a worse bug than an overlay that leaves early.
+    // Failsafe, and not a workaround — a page opened in a background tab has
+    // `requestAnimationFrame` suspended indefinitely. Without a ceiling the
+    // opening would wait for a paint that never comes and hold the whole site
+    // behind it. An overlay that leaves early is a far smaller bug than one
+    // that can never leave.
     const escape = window.setTimeout(() => {
       for (const step of STEPS) mark(step.id);
     }, FAILSAFE_MS);
@@ -104,22 +108,28 @@ export function Preloader() {
   const allReady = STEPS.every((step) => ready[step.id]);
 
   useEffect(() => {
-    if (!allReady || done) return;
+    if (!allReady || leaving) return;
 
     const elapsed = Date.now() - (startedAt.current ?? Date.now());
     const wait = instant.current ? 0 : Math.max(0, MIN_VISIBLE_MS - elapsed);
 
-    const timer = window.setTimeout(() => {
+    // The exit is two beats: the boundary opens and the field disperses,
+    // then the overlay itself resolves into the hero behind it.
+    const begin = window.setTimeout(() => setLeaving(true), wait);
+    const finish = window.setTimeout(() => {
       setDone(true);
       try {
         window.sessionStorage.setItem(SESSION_KEY, '1');
       } catch {
         // Not being able to remember is harmless.
       }
-    }, wait);
+    }, wait + (instant.current ? 0 : EXIT_MS));
 
-    return () => window.clearTimeout(timer);
-  }, [allReady, done]);
+    return () => {
+      window.clearTimeout(begin);
+      window.clearTimeout(finish);
+    };
+  }, [allReady, leaving]);
 
   // Locks scrolling while the opening is up, so the hero timeline cannot be
   // scrubbed past before anyone has seen it.
@@ -133,24 +143,47 @@ export function Preloader() {
   }, [done]);
 
   return (
-    <div className="preloader" data-done={done} aria-hidden={done} role="status" aria-live="polite">
-      <div className="preloader-inner">
-        <p className="preloader-name">
-          <span>Harshith</span>
-          <span>Gangaraju</span>
-        </p>
+    <div
+      className="preloader"
+      data-done={done}
+      data-leaving={leaving}
+      aria-hidden={done}
+      role="status"
+      aria-live="polite"
+    >
+      {/* A boundary, not a card: four corner marks and a hairline, closer to
+          an instrument's viewfinder than to a panel. */}
+      <div className="preloader-frame">
+        <ParticleField
+          className="preloader-field"
+          active={!done}
+          dispersing={leaving}
+        />
 
-        <ul className="preloader-steps">
-          {STEPS.map((step) => (
-            <li key={step.id} data-ready={Boolean(ready[step.id])}>
-              <span className="preloader-step-label">{step.label}</span>
-              <span className="preloader-step-rule" aria-hidden="true" />
-            </li>
-          ))}
-        </ul>
+        <span className="preloader-corner" data-corner="tl" aria-hidden="true" />
+        <span className="preloader-corner" data-corner="tr" aria-hidden="true" />
+        <span className="preloader-corner" data-corner="bl" aria-hidden="true" />
+        <span className="preloader-corner" data-corner="br" aria-hidden="true" />
 
-        <p className="preloader-disciplines">Cybersecurity · AI · Infrastructure</p>
+        <div className="preloader-inner">
+          <p className="preloader-name">
+            <span>Harshith</span>
+            <span>Gangaraju</span>
+          </p>
+
+          <ul className="preloader-steps">
+            {STEPS.map((step) => (
+              <li key={step.id} data-ready={Boolean(ready[step.id])}>
+                <span className="preloader-step-index">{step.index}</span>
+                <span className="preloader-step-label">{step.label}</span>
+                <span className="preloader-step-rule" aria-hidden="true" />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
+
+      <p className="preloader-disciplines">Cybersecurity · AI · Infrastructure</p>
     </div>
   );
 }
