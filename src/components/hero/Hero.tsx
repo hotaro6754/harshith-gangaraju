@@ -3,7 +3,6 @@
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SplitText } from 'gsap/SplitText';
 import { useRef } from 'react';
 
 import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
@@ -12,7 +11,7 @@ import { ENVIRONMENTS, type EnvironmentId } from '@/lib/environments';
 import { DepthMarkers } from './DepthMarkers';
 import { KineticBand } from './KineticBand';
 
-gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /**
  * One environment, committed to.
@@ -43,6 +42,9 @@ const depth = (index: number): number =>
  */
 const HEADLINE_OUT = 0.3;
 const HANDOVER = HEADLINE_OUT + 0.12;
+
+/** Authored line by line, so nothing has to rewrite the DOM to animate it. */
+const HEADLINE = ['I build systems', 'that watch,', 'decide and hold.'];
 
 export function Hero() {
   const root = useRef<HTMLDivElement>(null);
@@ -139,65 +141,50 @@ export function Hero() {
           timeline.to(markers, { opacity: 0, ease: 'none', duration: 0.08 }, 0.92);
 
           // ---- Headline ------------------------------------------------
-          const headline = root.current?.querySelector<HTMLElement>('[data-hero-headline]');
-          if (headline) {
-            SplitText.create(headline, {
-              type: 'lines',
-              linesClass: 'hero-line',
-              mask: 'lines',
-              autoSplit: true,
-              onSplit: (split) => {
-                // Two animations touch these lines: a one-shot reveal on load
-                // and a scrubbed drift tied to the scrollbar. They must not
-                // share a target or a property — a scrubbed tween re-asserts
-                // its start value every frame and will hold the reveal
-                // permanently half-finished, which is exactly what mangled
-                // the headline.
-                //
-                // So: the reveal moves the line *inside* its mask; the drift
-                // and exit move the mask wrapper around it.
-                const wrappers = split.lines
-                  .map((line) => line.parentElement)
-                  .filter((el): el is HTMLElement => el !== null && el !== headline);
+          // The lines are authored markup, not a runtime split. SplitText
+          // rewrites the DOM underneath React, and React then cannot find the
+          // nodes it owns, which crashes reconciliation outright. This
+          // headline has explicit line breaks, so splitting it at runtime was
+          // only ever re-deriving something already known.
+          //
+          // Two animations touch these lines: a one-shot reveal on load and a
+          // scrubbed drift tied to the scrollbar. They must not share a target
+          // or a property, because a scrubbed tween re-asserts its start value
+          // every frame and will hold the reveal permanently half-finished. So
+          // the reveal moves the inner line; the drift moves the mask.
+          const masks = gsap.utils.toArray<HTMLElement>('[data-line]');
+          const inners = gsap.utils.toArray<HTMLElement>('[data-line-inner]');
 
-                const reveal = gsap.from(split.lines, {
-                  yPercent: 120,
-                  duration: 1.1,
-                  ease: 'expo.out',
-                  stagger: 0.08,
-                  onComplete: () => {
-                    // The mask exists to clip the rise, and its job is done.
-                    // Leaving it on clips the drift.
-                    for (const wrapper of wrappers) wrapper.style.overflow = 'visible';
-                  },
-                });
+          gsap.from(inners, {
+            yPercent: 115,
+            duration: 1.1,
+            ease: 'expo.out',
+            stagger: 0.08,
+            onComplete: () => {
+              // The mask exists to clip the rise, and its job is done.
+              // Leaving it on clips the drift.
+              for (const mask of masks) mask.style.overflow = 'visible';
+            },
+          });
 
-                // Lines sit at different depths, so they separate slightly as
-                // the valley opens. Kept small: enough to feel like space,
-                // not enough for two lines to collide.
-                // Drift and exit must not overlap in time either — a second
-                // tween on yPercent starting while the first is still running
-                // re-asserts the first's value and the headline never leaves.
-                wrappers.forEach((wrapper, i) => {
-                  timeline.to(
-                    wrapper,
-                    { xPercent: i * -2.5, yPercent: -8 - i * 3, ease: 'none', duration: HEADLINE_OUT },
-                    0,
-                  );
-                });
+          // Drift and exit must not overlap in time either: a second tween on
+          // yPercent starting while the first is still running re-asserts the
+          // first's value, and the headline never leaves.
+          masks.forEach((mask, i) => {
+            timeline.to(
+              mask,
+              { xPercent: i * -2.5, yPercent: -8 - i * 3, ease: 'none', duration: HEADLINE_OUT },
+              0,
+            );
+          });
 
-                // Out before anything else arrives. Nothing else may occupy
-                // this optical space until the exit has finished.
-                timeline.to(
-                  wrappers,
-                  { yPercent: -95, opacity: 0, ease: 'power2.in', stagger: 0.03, duration: 0.12 },
-                  HEADLINE_OUT,
-                );
-
-                return reveal;
-              },
-            });
-          }
+          // Out before anything else arrives. Nothing else may occupy this
+          // optical space until the exit has finished.
+          timeline.to(
+            masks,
+            { yPercent: -95, opacity: 0, ease: 'power2.in', stagger: 0.03, duration: 0.12 },
+            HEADLINE_OUT,
+          );
 
           // ---- Kinetic bands -------------------------------------------
           // Strictly after the headline is gone — overlapping them was what
@@ -273,11 +260,13 @@ export function Hero() {
         </header>
 
         <h1 className="hero-headline" data-hero-headline>
-          I build systems
-          <br />
-          that watch,
-          <br />
-          decide and hold.
+          {HEADLINE.map((line) => (
+            <span className="hero-line-mask" data-line key={line}>
+              <span className="hero-line" data-line-inner>
+                {line}
+              </span>
+            </span>
+          ))}
         </h1>
       </div>
 
