@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Instrument_Serif } from 'next/font/google';
 
-import { DEFAULT_ENVIRONMENT } from '@/lib/environments';
+import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 
 import './globals.css';
 
@@ -46,7 +46,7 @@ export default function RootLayout({
     // dropped as invalid.
     <html
       lang="en"
-      data-env={DEFAULT_ENVIRONMENT}
+      data-env={HERO_ENVIRONMENT}
       className={`${instrumentSerif.variable} ${geistSans.variable} ${geistMono.variable}`}
     >
       <body>{children}</body>

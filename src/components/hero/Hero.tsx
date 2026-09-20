@@ -6,22 +6,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useRef } from 'react';
 
 import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
-import { ENVIRONMENTS, type EnvironmentId } from '@/lib/environments';
+import { ENVIRONMENTS } from '@/lib/environments';
+import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 
 import { DepthMarkers } from './DepthMarkers';
 import { KineticBand } from './KineticBand';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
-
-/**
- * One environment, committed to.
- *
- * Moonlit: every one of its six stops rates AAA, it is the only dark state in
- * the set, and a single cold light over a deep valley is the right register for
- * someone who builds detection systems. Change this one constant to try
- * another — every scene value lives in `ENVIRONMENTS`.
- */
-const HERO_ENVIRONMENT: EnvironmentId = 'moonlit';
 
 const RANGES = ENVIRONMENTS[HERO_ENVIRONMENT].ranges;
 
@@ -92,19 +83,15 @@ export function Hero() {
           });
 
           // ---- The descent ---------------------------------------------
-          // Not a parallax slide. The viewer travels *forward* into the
-          // valley: near ranges sweep down past them and out of frame while
-          // the ranges behind grow into the space. Layers peel away one at a
-          // time and the horizon keeps opening.
+          // Not a parallax slide. Ranges spread *around* the horizon rather
+          // than all sliding one way: everything nearer than the pivot falls,
+          // everything beyond it rises, and all of it grows. That is what a
+          // descent toward a horizon actually looks like, and it keeps the
+          // frame populated — translating every layer in the same direction
+          // just empties it.
           //
-          // Translating alone is the generic effect. The scale is what makes
-          // it read as travel, and the direction matters — moving everything
-          // up just empties the frame.
-          // Ranges spread *around* the horizon rather than all sliding one
-          // way: everything nearer than the pivot falls, everything beyond it
-          // rises, and all of it grows. That is what a descent toward a
-          // horizon actually looks like, and it keeps the frame populated —
-          // translating every layer in the same direction just empties it.
+          // The scale is what makes it read as travel rather than as layers
+          // moving at different speeds, which is the generic version.
           const travel = mobile ? 300 : 460;
           const PIVOT = 0.3;
           for (let i = 0; i < RANGES; i++) {

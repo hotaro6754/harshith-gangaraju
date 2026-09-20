@@ -1,3 +1,4 @@
+import { InstrumentStrip } from '@/components/chrome/InstrumentStrip';
 import { Nav } from '@/components/chrome/Nav';
 import { Hero } from '@/components/hero/Hero';
 import { Cursor } from '@/components/motion/Cursor';
@@ -27,6 +28,7 @@ export default function Home() {
           <Practice />
           <Currently />
           <Contact />
+          <InstrumentStrip />
         </div>
       </main>
     </>

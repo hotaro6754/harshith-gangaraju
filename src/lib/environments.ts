@@ -230,9 +230,9 @@ export const ENVIRONMENTS: Record<EnvironmentId, Environment> = {
 export const ENVIRONMENT_SEQUENCE: readonly EnvironmentId[] = ENVIRONMENT_IDS;
 
 /**
- * The site commits to one environment. The other five stay here as the
- * harvested reference set — swapping `HERO_ENVIRONMENT` and this constant is
- * all it takes to try another.
+ * Fallback for anything that needs *an* environment without caring which.
+ * The site's actual choice lives in `hero-environment.ts` — one constant, so
+ * the document, the hero and the footer readout cannot disagree.
  */
 export const DEFAULT_ENVIRONMENT: EnvironmentId = 'moonlit';
 
