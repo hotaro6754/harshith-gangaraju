@@ -32,6 +32,9 @@
   /* Rhythm */
   --gutter: clamp(1rem, 4vw, 4.5rem);
   --measure: 62ch;
+
+  /* Global grain multiplier. 0 is off; 0.5 was the previous default. */
+  --grain-strength: 0;
 }
 
 [data-env="morning-mist"] {
@@ -126,7 +129,7 @@
   --color-ink-muted: var(--env-ink-muted);
   --color-sky: var(--env-sky);
   --color-rule: var(--env-rule);
-  --font-display: var(--font-archivo);
+  --font-display: var(--font-instrument-serif);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -320,9 +323,10 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* The preset's noise value is the reference's own scale; halved here
-     because that scale assumes a flat export, not type sitting on top. */
-  opacity: calc(var(--env-noise, 0.12) * 0.5);
+  /* Currently off. Each environment still carries its harvested `noise`
+     value — that is reference data and stays — so raising --grain-strength
+     brings the film grain back at the reference's own relative scale. */
+  opacity: calc(var(--env-noise, 0.12) * var(--grain-strength));
   background-image: url("/grain.png");
   background-repeat: repeat;
   background-size: 128px 128px;
@@ -369,13 +373,16 @@ body {
   margin: 0 0 14vh;
   max-width: 15ch;
   font-family: var(--font-display), system-ui, sans-serif;
-  font-size: clamp(2.35rem, 7.6vw, 7rem);
-  font-weight: 500;
-  font-stretch: 80%;
+  /* Larger than the grotesk it replaced: a serif at the same size reads
+     noticeably smaller, and the hero needs the scale. */
+  font-size: clamp(2.75rem, 8.8vw, 8.5rem);
+  font-weight: 400;
   /* SplitText masks each line to its own line box, so anything tighter clips
-     Archivo's descenders until the mask is released after the reveal. */
-  line-height: 1.16;
-  letter-spacing: -0.035em;
+     the descenders until the mask is released after the reveal. */
+  line-height: 1.1;
+  /* Serifs need far less negative tracking than a grotesk; past about -0.02em
+     the letterforms start colliding at display sizes. */
+  letter-spacing: -0.018em;
   color: var(--env-ink);
 }
 
@@ -417,11 +424,10 @@ body {
   display: inline-flex;
   gap: 0.28em;
   font-family: var(--font-display), system-ui, sans-serif;
-  font-size: clamp(2rem, 8.4vw, 7.5rem);
-  font-weight: 600;
-  font-stretch: 112%;
-  line-height: 0.92;
-  letter-spacing: -0.04em;
+  font-size: clamp(2.25rem, 9.2vw, 8.5rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.012em;
   color: var(--env-ink);
   /* Low enough to stay atmosphere rather than content: the bands are texture
      passing through the landscape, not a second headline. */

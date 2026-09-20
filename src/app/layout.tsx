@@ -1,14 +1,20 @@
 import type { Metadata } from 'next';
-import { Archivo, Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Instrument_Serif } from 'next/font/google';
 
 import { DEFAULT_ENVIRONMENT } from '@/lib/environments';
 
 import './globals.css';
 
-const archivo = Archivo({
-  variable: '--font-archivo',
+/**
+ * The display face. One weight, one italic — which is the point: an editorial
+ * serif carries the hero on shape and scale rather than on weight, so there is
+ * nothing to reach for when a line needs more presence except making it bigger.
+ */
+const instrumentSerif = Instrument_Serif({
+  variable: '--font-instrument-serif',
   subsets: ['latin'],
-  axes: ['wdth'],
+  weight: '400',
+  style: ['normal', 'italic'],
   display: 'swap',
 });
 
@@ -34,10 +40,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-env={DEFAULT_ENVIRONMENT}>
-      <body className={`${archivo.variable} ${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
+    // The font variables belong on <html>, not <body>: Tailwind's `@theme
+    // inline` emits --font-display into :root, so a variable scoped to <body>
+    // resolves to empty there and the whole font-family declaration is
+    // dropped as invalid.
+    <html
+      lang="en"
+      data-env={DEFAULT_ENVIRONMENT}
+      className={`${instrumentSerif.variable} ${geistSans.variable} ${geistMono.variable}`}
+    >
+      <body>{children}</body>
     </html>
   );
 }

@@ -51,12 +51,10 @@ export default function ScenesPage() {
                 style={{
                   margin: 0,
                   fontFamily: 'var(--font-display)',
-                  fontSize: 'clamp(3rem, 11vw, 10rem)',
-                  fontWeight: 500,
-                  fontStretch: '78%',
-                  lineHeight: 0.88,
-                  letterSpacing: '-0.03em',
-                  textTransform: 'uppercase',
+                  fontSize: 'clamp(3.25rem, 12vw, 11rem)',
+                  fontWeight: 400,
+                  lineHeight: 0.92,
+                  letterSpacing: '-0.015em',
                 }}
               >
                 {env.name}
