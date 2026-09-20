@@ -1,0 +1,65 @@
+## The problem
+
+Good ideas at college disappear into WhatsApp groups. Someone posts something
+genuinely interesting, four people reply, and in a day it is buried under
+timetable screenshots and never happens.
+
+The people exist. The ideas exist. The projects exist. They just barely connect
+to each other, and nothing links a claim to a thing that was actually built.
+
+## Constraints
+
+The obvious version of this is a social feed, and the obvious version is also
+the one that fails. A feed rewards posting, and posting is the cheap part.
+
+<Decision title="Score evidence, not activity" instead="engagement metrics and a feed">
+Ideas are cheap. Anyone can post one, and a platform that ranks by likes ends up
+ranking the people who are best at posting rather than the people who build.
+
+So contribution has to be verifiable: a Proof Wall entry needs GitHub evidence, a
+demo link and a timestamp, and it is reviewed before it counts for anything. It
+is more friction and fewer entries. The entries mean something.
+</Decision>
+
+## The system
+
+<SystemDiagram name="ideaspace" />
+
+The graph is the product. Everything else exists to keep what enters it honest.
+
+## Making the scoring legible
+
+Two things carry the weight. A Health Score, 0–100, rates how complete an idea
+actually is — does it state a problem, a proposed approach, the skills it needs
+— so "vague" is a visible property rather than something you discover after
+joining. And a status pipeline, `DRAFT → DISCOVERY → BUILDING → SHIPPED →
+ARCHIVED`, so an idea's position is a fact rather than a vibe.
+
+Every point event is logged with a reason. Nobody has to trust a black box to
+know why they are ranked where they are — which matters more than it sounds,
+because a scoring system people do not trust is one they route around.
+
+Archived projects keep their postmortems and can be forked. A failed attempt
+with a written reason is more useful to the next team than a blank page.
+
+## Where it stands
+
+<Metric
+  value="not-measured"
+  label="Adoption"
+  reason="Not yet deployed to a full cohort — no usage data to report"
+/>
+
+The model and the platform are built. Whether the incentives actually work is an
+empirical question, and I have not run the experiment yet, so I am not going to
+describe it as though I have.
+
+## What I would change
+
+I built outward before proving the middle. The Forge, bounties, tiers and the
+archive all arrived while the core question — does a verified contribution graph
+change what people do — was still untested.
+
+The fix is the lesson I keep having to learn: cut the MVP down to the graph and
+the proof, prove that, then add. Sometimes five services and three agents should
+have been one good function.

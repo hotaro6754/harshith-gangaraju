@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { Reveal } from '@/components/motion/Reveal';
 import { DEPTH_LABEL, PROJECTS_BY_DEPTH } from '@/content/projects';
 
@@ -57,6 +59,14 @@ export function Work() {
                   {project.role} · {project.period}
                 </span>
                 <span className="work-entry-links">
+                  <Link
+                    className="work-entry-case"
+                    href={`/work/${project.slug}`}
+                    data-cursor="Read"
+                  >
+                    Case study
+                    <span aria-hidden="true"> →</span>
+                  </Link>
                   {project.links.map((link) => (
                     <a
                       key={link.href}

@@ -43,8 +43,12 @@ const depth = (index: number): number =>
 const HEADLINE_OUT = 0.3;
 const HANDOVER = HEADLINE_OUT + 0.12;
 
-/** Authored line by line, so nothing has to rewrite the DOM to animate it. */
-const HEADLINE = ['I build systems', 'that watch,', 'decide and hold.'];
+/**
+ * Authored line by line, so nothing has to rewrite the DOM to animate it.
+ * His own words. The second sentence is the whole portfolio in one line, and
+ * it is far more his than anything written *about* him would be.
+ */
+const HEADLINE = ['I build systems.', 'Then I try to find', 'where they break.'];
 
 export function Hero() {
   const root = useRef<HTMLDivElement>(null);

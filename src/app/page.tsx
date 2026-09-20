@@ -3,7 +3,9 @@ import { Hero } from '@/components/hero/Hero';
 import { Cursor } from '@/components/motion/Cursor';
 import { RidgeConnector } from '@/components/motion/RidgeConnector';
 import { Contact } from '@/components/sections/Contact';
+import { Currently } from '@/components/sections/Currently';
 import { Position } from '@/components/sections/Position';
+import { Practice } from '@/components/sections/Practice';
 import { Work } from '@/components/sections/Work';
 
 export default function Home() {
@@ -22,6 +24,8 @@ export default function Home() {
           <RidgeConnector />
           <Position />
           <Work />
+          <Practice />
+          <Currently />
           <Contact />
         </div>
       </main>

@@ -7,6 +7,8 @@ import { PROFILE } from '@/content/profile';
 const SECTIONS = [
   { id: 'position', label: 'Position' },
   { id: 'work', label: 'Work' },
+  { id: 'practice', label: 'Practice' },
+  { id: 'currently', label: 'Currently' },
   { id: 'contact', label: 'Contact' },
 ];
 

@@ -1,0 +1,82 @@
+## The problem
+
+I wanted to build real products instead of treating every project like a
+classroom exercise. Qyverix is where that happens — and the thing nobody tells
+you is how little of it is writing code.
+
+Shipping client work on a deadline is an operations problem long before it is
+an engineering one. Domains, mail, authentication, roles, environments, backups
+and logs all have to exist, and then they have to keep existing, and somebody
+has to be the reason they do.
+
+## The system
+
+<SystemDiagram name="qyverix" />
+
+The build is the short part. Everything below the line is what makes it
+somebody's job forever, and that somebody is me.
+
+## What ownership actually meant
+
+<Decision title="Own the infrastructure" instead="handing off deployment and hoping">
+It would have been easier to treat "it works locally" as done and let hosting be
+someone else's concern. That is also how you find out at 2 a.m. that nobody
+configured mail records, or that a backup has been silently failing for a
+fortnight.
+
+Owning the whole path is slower and it is the only version where I learn
+anything. "Works on my machine" stopped being a valid engineering strategy the
+first time a real client refreshed the page.
+</Decision>
+
+The part I am most pleased with is Qyverix Cloud, mostly because it is the kind
+of infrastructure layer I wanted to use myself — which turns out to be a
+reasonable specification to build against.
+
+## Delivery
+
+<Metric
+  value="10+"
+  label="Projects shipped"
+  source="qyverix.in"
+  href="https://qyverix.in"
+/>
+
+<Metric
+  value="8"
+  label="Industries served"
+  source="qyverix.in"
+  href="https://qyverix.in"
+/>
+
+<Metric
+  value="3–5 days"
+  label="Static site delivery"
+  source="qyverix.in, published delivery windows"
+  href="https://qyverix.in"
+/>
+
+<Metric
+  value="Lighthouse 95+"
+  label="Performance standard"
+  source="qyverix.in, stated target"
+  href="https://qyverix.in"
+/>
+
+That last one is a standard the studio publishes, which means the site you are
+reading has to meet it too. It seemed fair.
+
+## What I learned
+
+Real systems do not care that you are still a student. Nothing about a broken
+DNS record is different because the person who owns it has an exam that week.
+
+That sounds like a complaint. It is the opposite — it is the single most useful
+thing college could not have taught me, and the reason I stopped treating
+deployment as the end of a project rather than the beginning of one.
+
+## What I would change
+
+We said yes to too much variety early on. Every new kind of project meant a new
+set of operational edges to maintain, and maintenance compounds in a way that
+building does not. Narrower would have been faster.

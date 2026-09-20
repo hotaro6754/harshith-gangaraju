@@ -1,0 +1,101 @@
+## The problem
+
+A classifier that says "malicious" and stops is not much use to whoever has to
+act on it. They have to decide something, and "the model said so" is not a
+reason — it is a shrug with a confidence score attached.
+
+So the interesting problem in CYBER-OS was never the model. It was everything
+around it: carrying provenance the whole way through, correlating findings that
+arrive from completely different surfaces, and behaving honestly when a
+component is down instead of guessing.
+
+## Constraints
+
+The network side observes and does not touch. That rules out a lot of the
+easy answers.
+
+<Decision title="Metadata-only detection" instead="active probing or payload inspection">
+Traffic is unidirectional and read-only — no inline mitigation, no reaching out
+to check whether a host is really what it claims. Everything has to come from
+connection metadata: timing, volume, entropy, who talked to whom and how often.
+
+It is a harder starting position, and it is also the realistic one. Most places
+that would deploy something like this cannot let it interfere with production
+traffic either.
+</Decision>
+
+## The system
+
+<SystemDiagram name="cyber-os" />
+
+Two inlets. Live traffic goes through Zeek and onto a Redpanda bus. Submitted
+content — a URL, an email, an SMS, a QR code — goes to a sandboxed headless
+browser that renders it in isolation and records what it actually did, not what
+it claimed it would do.
+
+Both converge on detection, and detection converges on evidence.
+
+## Detection
+
+Four layers, because no single one of them is trustworthy alone:
+
+- **Lexical and heuristic** — entropy and pattern work, for DGA-style domains
+  and homoglyph tricks.
+- **Tabular ML** — XGBoost over Zeek telemetry, for the behavioural things:
+  beaconing that is too regular to be human, exfiltration shaped wrong for its
+  protocol.
+- **Anomaly** — Isolation Forest, for the traffic that is not like the rest
+  without matching anything known.
+- **Threat intelligence** — reputation, for what is already known.
+
+The point of stacking them is disagreement. When three layers agree the case is
+easy; when they disagree, that is the case worth a person's time.
+
+## Evidence
+
+Every detection carries which detector produced it, at what version, over what
+input hash. That is the Evidence Fabric, and it exists because of one question
+that has no good answer otherwise: *six months from now, can you reconstruct
+why this was flagged?*
+
+<Decision title="Fail closed to local heuristics" instead="failing open, or filling the gap with a guess">
+If the model service or an intelligence API is unavailable, the system degrades
+to local heuristics and says so on the case. It does not quietly return a
+lower-confidence verdict that looks identical to a real one.
+
+An investigator who cannot tell a degraded result from a healthy one will
+eventually trust the wrong thing. Making degradation visible is less impressive
+and much more useful.
+</Decision>
+
+The sandbox gets the same treatment in the other direction: it refuses RFC-1918
+addresses and cloud metadata endpoints, because a tool that fetches arbitrary
+URLs on request is an SSRF primitive unless you make it not one.
+
+## Where it stands
+
+<Metric
+  value="not-measured"
+  label="Detection rate"
+  reason="Not yet benchmarked against a labelled corpus under controlled load"
+/>
+
+<Metric
+  value="not-measured"
+  label="Throughput"
+  reason="No sustained-load testing on representative hardware yet"
+/>
+
+I would rather publish that than a number I cannot defend. The detection logic
+runs and the pipeline holds together end to end; what it does not have yet is
+evidence of how well, and those are different claims.
+
+## What I would change
+
+The correlation engine grew feature by feature and it shows — it does too much
+in one place. If I started again I would define the entity graph first and make
+correlation a consumer of it, rather than the thing that builds it as a side
+effect.
+
+The broader lesson, and the one I keep relearning: security engineering is
+mostly about everything around the model.

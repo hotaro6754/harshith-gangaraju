@@ -1,6 +1,8 @@
 import { Cursor } from '@/components/motion/Cursor';
 import { Contact } from '@/components/sections/Contact';
+import { Currently } from '@/components/sections/Currently';
 import { Position } from '@/components/sections/Position';
+import { Practice } from '@/components/sections/Practice';
 import { Work } from '@/components/sections/Work';
 
 export const metadata = { title: 'Sections · Lab' };
@@ -19,6 +21,8 @@ export default function SectionsLabPage() {
       <main className="descent">
         <Position />
         <Work />
+        <Practice />
+        <Currently />
         <Contact />
       </main>
     </>

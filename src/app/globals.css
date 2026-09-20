@@ -793,6 +793,183 @@ body {
 }
 
 /* ==================================================================
+   PULL QUOTES
+   ================================================================== */
+
+.pull-quote {
+  margin: clamp(2rem, 5vh, 3rem) 0 0;
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--env-rule);
+  max-width: 38ch;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.125rem, 1.9vw, 1.5rem);
+  line-height: 1.35;
+  color: var(--env-ink);
+}
+
+.pull-quote-wide {
+  max-width: 46ch;
+}
+
+.position-facts {
+  margin: clamp(2rem, 5vh, 3rem) 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--env-rule);
+  display: grid;
+  gap: 1rem;
+}
+
+.position-facts dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+  margin-bottom: 0.3rem;
+}
+
+.position-facts dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--env-ink);
+}
+
+.position-facts-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  color: var(--env-ink-muted);
+}
+
+/* ==================================================================
+   03 — PRACTICE
+   ================================================================== */
+
+.practice-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: start;
+}
+
+.principles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: principle;
+}
+
+.principle {
+  display: grid;
+  grid-template-columns: 2.25rem 9rem 1fr;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.principle-rank {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  color: var(--env-ink-muted);
+}
+
+.principle-name {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  color: var(--env-ink);
+}
+
+.principle-note {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--env-ink-muted);
+}
+
+.practice-side-title,
+.currently-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+.roles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.roles li {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.role-title {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  color: var(--env-ink);
+}
+
+.role-org {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+.role-note {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--env-ink-muted);
+}
+
+/* ==================================================================
+   04 — CURRENTLY
+   ================================================================== */
+
+.currently-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: clamp(1.75rem, 5vw, 3.5rem);
+}
+
+.currently-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+}
+
+.currently-list li {
+  display: grid;
+  gap: 0.2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.currently-label {
+  font-size: 1rem;
+  color: var(--env-ink);
+}
+
+.currently-note {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--env-ink-muted);
+}
+
+/* ==================================================================
    02 — WORK
    ================================================================== */
 
@@ -950,6 +1127,366 @@ body {
 .colophon p {
   margin: 0;
   max-width: 62ch;
+}
+
+/* ==================================================================
+   CASE STUDIES
+   ================================================================== */
+
+.case-article {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(6rem, 14vh, 10rem) var(--gutter) clamp(5rem, 12vh, 8rem);
+}
+
+.case-back {
+  margin: 0 0 clamp(2.5rem, 6vh, 4rem);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.case-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-display), serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--env-ink);
+}
+
+.case-summary {
+  margin: 0 0 2.5rem;
+  max-width: 44ch;
+  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
+  line-height: 1.55;
+  color: var(--env-ink);
+}
+
+.case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  margin: 0 0 clamp(3rem, 8vh, 5rem);
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.case-meta dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+  margin-bottom: 0.3rem;
+}
+
+.case-meta dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--env-ink);
+}
+
+/* ---- MDX prose ---- */
+
+.case-body {
+  font-size: clamp(1rem, 1.25vw, 1.0625rem);
+  line-height: 1.7;
+  color: var(--env-ink-muted);
+}
+
+.case-body h2 {
+  margin: clamp(3rem, 7vh, 4.5rem) 0 1.25rem;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.625rem, 3vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--env-ink);
+}
+
+.case-body h3 {
+  margin: 2.5rem 0 0.75rem;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  color: var(--env-ink);
+}
+
+.case-body p {
+  margin: 0 0 1.25rem;
+}
+
+.case-body strong {
+  color: var(--env-ink);
+  font-weight: 500;
+}
+
+.case-body em {
+  font-style: italic;
+  color: var(--env-ink);
+}
+
+.case-body ul {
+  margin: 0 0 1.5rem;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.625rem;
+}
+
+.case-body li::marker {
+  color: color-mix(in oklab, var(--env-ink) 45%, transparent);
+}
+
+.case-body code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125em;
+  letter-spacing: 0.02em;
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--env-rule);
+  border-radius: 2px;
+  color: var(--env-ink);
+}
+
+/* ---- Metric ---- */
+
+.metric {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, auto) 1fr;
+  align-items: baseline;
+  column-gap: 1.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.metric:first-of-type {
+  border-top: 1px solid var(--env-rule);
+}
+
+.metric-value {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1;
+  color: var(--env-ink);
+}
+
+.metric[data-unmeasured='true'] .metric-value {
+  color: var(--env-ink-muted);
+  opacity: 0.55;
+}
+
+.metric-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink);
+}
+
+.metric-source {
+  grid-column: 2;
+  margin-top: 0.3rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--env-ink-muted);
+}
+
+/* ---- Decision ---- */
+
+.decision {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--env-rule);
+  border-left-width: 2px;
+  border-left-color: color-mix(in oklab, var(--env-ink) 45%, transparent);
+}
+
+.decision-title {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--env-ink);
+}
+
+.decision-instead {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  color: var(--env-ink-muted);
+}
+
+.decision-instead span {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.decision-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- System diagram ---- */
+
+.system-diagram {
+  margin: 2.5rem 0;
+}
+
+.system-diagram svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.system-diagram figcaption {
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--env-ink-muted);
+}
+
+.diagram-edge {
+  fill: none;
+  stroke: var(--env-ink);
+  stroke-width: 1;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* `offset-distance` is composited; animating stroke-dashoffset instead would
+   repaint the whole path every frame. */
+.diagram-pulse {
+  fill: var(--env-ink);
+  opacity: 0.7;
+  offset-rotate: 0deg;
+  animation: diagram-flow 3.2s linear infinite;
+}
+
+@keyframes diagram-flow {
+  from {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.7;
+  }
+  88% {
+    opacity: 0.7;
+  }
+  to {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.diagram-node-plate {
+  fill: var(--env-sky);
+}
+
+.diagram-node-label,
+.diagram-node-detail {
+  text-anchor: middle;
+}
+
+.diagram-node-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--env-ink-muted);
+}
+
+.diagram-node-detail {
+  font-size: 10px;
+  fill: var(--env-ink-muted);
+  opacity: 0.7;
+}
+
+[data-accent='true'] .diagram-node-label {
+  fill: var(--env-ink);
+}
+
+/* ---- Case footer ---- */
+
+.case-foot {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  margin-top: clamp(3.5rem, 9vh, 6rem);
+  padding-top: 2rem;
+  border-top: 1px solid var(--env-rule);
+}
+
+.case-foot h2 {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+.case-stack dl {
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.case-stack dl > div {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.case-stack dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+  padding-top: 0.15rem;
+}
+
+.case-stack dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--env-ink);
+}
+
+.case-links ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 720px) {
+  .case-foot,
+  .practice-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .principle {
+    grid-template-columns: 2rem 1fr;
+    row-gap: 0.25rem;
+  }
+
+  .principle-note {
+    grid-column: 2;
+  }
+
+  .case-stack dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
 }
 
 /* ==================================================================

@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * The three projects the portfolio is built on. Depth over count.
  *
@@ -117,6 +119,42 @@ export const PROJECTS: Project[] = [
     status: 'active',
   },
 ];
+
+/**
+ * Validated at module load, which means at build time — a malformed entry
+ * fails `next build` rather than shipping a half-rendered case study. The
+ * checks are the content rules made mechanical: a project must link to
+ * something a reader can verify, and every string must actually say
+ * something.
+ */
+const projectSchema = z.object({
+  slug: z.string().regex(/^[a-z0-9-]+$/, 'slug must be url-safe'),
+  name: z.string().min(1),
+  role: z.string().min(1),
+  period: z.string().min(1),
+  depth: z.enum(['near', 'mid', 'far']),
+  summary: z.string().min(40, 'a one-liner that short is not saying anything'),
+  premise: z.string().min(80, 'the premise is the argument — write it out'),
+  stack: z.array(z.object({ layer: z.string().min(1), tech: z.array(z.string().min(1)).min(1) })).min(1),
+  links: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        // `z.url()` rather than the deprecated `z.string().url()` — this is
+        // Zod 4.
+        href: z.url(),
+        kind: z.enum(['repo', 'live', 'docs']),
+      }),
+    )
+    .min(1, 'a claim a reader cannot check is not evidence'),
+  status: z.enum(['active', 'archived']),
+});
+
+z.array(projectSchema).parse(PROJECTS);
+
+export const PROJECT_BY_SLUG: Record<string, Project> = Object.fromEntries(
+  PROJECTS.map((project) => [project.slug, project]),
+);
 
 /** Index order is the descent: far to near, model to operate. */
 export const PROJECTS_BY_DEPTH: Project[] = ['far', 'mid', 'near']

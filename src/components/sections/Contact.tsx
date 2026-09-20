@@ -9,7 +9,7 @@ export function Contact() {
   return (
     <section className="section section-contact" id="contact" aria-labelledby="contact-title">
       <div className="section-head">
-        <span className="section-index">03</span>
+        <span className="section-index">05</span>
         <h2 className="section-title" id="contact-title">
           Contact
         </h2>

@@ -67,8 +67,10 @@ export function StackDiagram() {
               data-primary={node.primary ? 'true' : 'false'}
             >
               {/* Knocks the edge out from behind the label so lines never run
-                  through the type. */}
-              <text x={x} y={y} className="stack-node-knockout">
+                  through the type. Hidden from assistive tech — it is the same
+                  string as the visible label, and without this every node is
+                  announced twice. */}
+              <text x={x} y={y} className="stack-node-knockout" aria-hidden="true">
                 {node.label}
               </text>
               <text x={x} y={y} className="stack-node">

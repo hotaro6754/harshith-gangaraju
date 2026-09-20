@@ -1,15 +1,14 @@
 import { Reveal } from '@/components/motion/Reveal';
-import { LEARNING, PROFILE } from '@/content/profile';
+import { EDUCATION, PROFILE, QUOTES } from '@/content/profile';
 
 import { StackDiagram } from './StackDiagram';
 
 /**
  * Section 01 — Position.
  *
- * One claim, the diagram that supports it, and the gaps stated out loud. The
- * last part is not modesty: naming what is still being learned is what makes
- * the rest of the page believable, and it is far harder to fake than a
- * confident adjective.
+ * One claim, the diagram that supports it, and the sentence that explains why
+ * any of it happened. College is here but deliberately small: it is a chapter,
+ * not the identity, and the work above it has to do the talking.
  */
 export function Position() {
   return (
@@ -29,22 +28,34 @@ export function Position() {
 
           <Reveal delay={0.08}>
             <p className="position-detail">
-              Most of what I build sits where those three meet — a detection pipeline is
-              useless without the infrastructure to run it, and infrastructure nobody can
-              operate is not finished. I care about the whole path from a problem to a
-              thing that stays up.
+              Mostly I end up where those three meet. A detection pipeline is useless
+              without the infrastructure to run it, and infrastructure nobody can
+              operate is not finished. I like the whole path — from a problem, to a
+              thing that stays up, to finding out what it does when someone leans on
+              it.
             </p>
           </Reveal>
 
           <Reveal delay={0.16}>
-            <div className="position-learning">
-              <h3 className="position-learning-title">Currently going deeper on</h3>
-              <ul className="position-learning-list">
-                {LEARNING.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            <blockquote className="pull-quote">{QUOTES.curiosity}</blockquote>
+          </Reveal>
+
+          <Reveal delay={0.22}>
+            <dl className="position-facts">
+              <div>
+                <dt>Studying</dt>
+                <dd>
+                  {EDUCATION.degree}
+                  <span className="position-facts-sub">
+                    {EDUCATION.institution} · {EDUCATION.year}, class of {EDUCATION.graduation}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>Based in</dt>
+                <dd>{PROFILE.location}</dd>
+              </div>
+            </dl>
           </Reveal>
         </div>
 
