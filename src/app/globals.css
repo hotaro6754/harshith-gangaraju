@@ -203,27 +203,18 @@ body {
    Depth is the site's navigation model, so these speeds are not decorative:
    near ranges are what you operate, far ranges are what you model.
 
-   One CSS variable per depth, set on the hero root and inherited by every
-   stacked scene. GSAP writes six variables per frame instead of thirty
-   inline transforms, and the browser still composites each layer.
+   The transforms themselves are written directly onto the range groups by
+   the hero timeline — see Hero.tsx. An earlier version drove them through
+   inherited custom properties, which invalidates style for every descendant
+   of the hero on every frame and never reaches the compositor.
    ================================================================== */
 
-[data-layer="range"] {
-  /* Translate *and* scale. The scale is what turns this from a parallax
-     slide into a descent: near ranges rush past and grow, far ranges barely
-     move, and the scroll reads as travelling through the valley rather than
-     as layers sliding over each other. */
-  transform-box: view-box;
-  transform-origin: 50% 44%;
-  transform: translate3d(0, var(--parallax, 0px), 0) scale(var(--scale, 1));
+/* Only the blurred ranges are promoted. A filter is rasterised once per
+   layer size, so a promoted layer that only ever translates reuses that
+   raster; promoting everything instead just costs memory. */
+[data-layer="range"][data-blurred="true"] {
+  will-change: transform;
 }
-
-.range-0 { --parallax: var(--parallax-0, 0px); --scale: var(--scale-0, 1); }
-.range-1 { --parallax: var(--parallax-1, 0px); --scale: var(--scale-1, 1); }
-.range-2 { --parallax: var(--parallax-2, 0px); --scale: var(--scale-2, 1); }
-.range-3 { --parallax: var(--parallax-3, 0px); --scale: var(--scale-3, 1); }
-.range-4 { --parallax: var(--parallax-4, 0px); --scale: var(--scale-4, 1); }
-.range-5 { --parallax: var(--parallax-5, 0px); --scale: var(--scale-5, 1); }
 
 /* ==================================================================
    LIGHT SOURCE
@@ -239,7 +230,8 @@ body {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  transform: translate3d(var(--light-x, 0px), var(--light-y, 0px), 0);
+  /* Transform is written by the hero timeline. */
+  will-change: transform;
 }
 
 .env-halo,
@@ -276,11 +268,18 @@ body {
 
 .fog-veil {
   animation: fog-drift var(--fog-dur, 40s) var(--ease-in-out) infinite alternate;
+  will-change: transform;
 }
 
+/* Opacity here is static on purpose.
+   The reference also breathes the veil's alpha, and it looks lovely — but
+   these ellipses are large, gradient-filled, and inside an SVG, where they
+   get no compositing layer of their own. Animating their opacity repaints
+   that whole area continuously, whether or not anyone is scrolling, and it
+   is the one effect in the scene that costs frames while the page is idle.
+   The horizontal drift alone still reads as moving air. */
 .fog-veil ellipse {
   opacity: var(--fog-alpha, 0.5);
-  animation: fog-breathe calc(var(--fog-dur, 40s) * 0.55) var(--ease-in-out) infinite alternate;
 }
 
 @keyframes fog-drift {
@@ -289,15 +288,6 @@ body {
   }
   to {
     transform: translateX(var(--fog-amp, 32px));
-  }
-}
-
-@keyframes fog-breathe {
-  from {
-    opacity: calc(var(--fog-alpha, 0.5) * 0.6);
-  }
-  to {
-    opacity: var(--fog-alpha, 0.5);
   }
 }
 
@@ -330,6 +320,9 @@ body {
   height: 100svh;
   overflow: hidden;
   isolation: isolate;
+  /* The scene never affects anything outside this box, so tell the browser
+     that and let it skip the rest of the page when the hero repaints. */
+  contain: paint;
 }
 
 .hero-content {
@@ -1651,8 +1644,11 @@ body {
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  background: color-mix(in oklab, var(--env-sky) 84%, transparent);
-  backdrop-filter: blur(10px);
+  /* Deliberately not backdrop-filter. A fixed, blurred surface sitting over
+     scrolling content is re-composited every frame — including while the bar
+     is still invisible — which is far too much to pay for frosted glass. An
+     opaque bar costs nothing. */
+  background: var(--env-sky);
   border-bottom: 1px solid var(--env-rule);
   opacity: 0;
   translate: 0 -100%;
@@ -1705,7 +1701,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  mix-blend-mode: difference;
+  /* No mix-blend-mode. Difference blending forces the cursor to composite
+     against everything beneath it on every pointer move, which is the last
+     thing to spend frame budget on. The environment's own ink reads fine. */
+  color: var(--env-ink);
 }
 
 .cursor-dot {
@@ -1713,7 +1712,7 @@ body {
   height: 7px;
   margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
-  background: #fff;
+  background: currentColor;
   transition: scale var(--dur-micro) var(--ease-out);
 }
 
@@ -1726,7 +1725,7 @@ body {
   font-size: 0.5625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #fff;
+  color: currentColor;
   white-space: nowrap;
 }
 

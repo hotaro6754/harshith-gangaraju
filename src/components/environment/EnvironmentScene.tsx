@@ -18,6 +18,15 @@ import { buildRidge, hashSeed, mulberry32, rangeGeometry } from '@/lib/ridge';
  */
 export const SCENE = { width: 1440, height: 900 } as const;
 
+/**
+ * How many of the farthest ranges carry a blur filter.
+ *
+ * Kept low and exported, because it is a performance budget rather than a
+ * visual preference: these layers must never be scaled, or the filter is
+ * re-rasterised every frame.
+ */
+export const BLUR_LAYERS = 2;
+
 /** Silhouettes close below the floor so parallax can lift them without gapping. */
 const FLOOR = SCENE.height * 1.6;
 
@@ -64,7 +73,7 @@ export function EnvironmentScene({
   seed = 'aizen',
   part = 'all',
   maxRanges,
-  maxBlurLayers = 2,
+  maxBlurLayers = BLUR_LAYERS,
   className,
 }: EnvironmentSceneProps) {
   const env = ENVIRONMENTS[id];
@@ -202,7 +211,13 @@ export function EnvironmentScene({
           const alpha = VEIL_ALPHAS[Math.min(VEIL_ALPHAS.length - 1, i)];
 
           return (
-            <g key={`range-${i}`} data-layer="range" data-range={i} className={`range range-${i}`}>
+            <g
+              key={`range-${i}`}
+              data-layer="range"
+              data-range={i}
+              data-blurred={blur ? 'true' : 'false'}
+              className={`range range-${i}`}
+            >
               <path
                 id={uid(`ridge-${i}`)}
                 d={ridge.silhouette}

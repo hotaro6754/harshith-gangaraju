@@ -5,7 +5,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useRef } from 'react';
 
-import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
+import { BLUR_LAYERS, SCENE, EnvironmentScene } from '@/components/environment/EnvironmentScene';
 import { ENVIRONMENTS } from '@/lib/environments';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 
@@ -94,17 +94,45 @@ export function Hero() {
           // moving at different speeds, which is the generic version.
           const travel = mobile ? 300 : 460;
           const PIVOT = 0.3;
+
           for (let i = 0; i < RANGES; i++) {
             const d = depth(i);
+            const y = travel * (d - PIVOT) * 0.62;
+
+            // Transforms are written straight onto the groups.
+            //
+            // The previous version animated CSS custom properties on the hero
+            // root, on the theory that six variable writes beat thirty
+            // transform writes. That is exactly backwards: changing a custom
+            // property on an ancestor invalidates style for every descendant
+            // that inherits it — the whole scene, every frame — and the
+            // resulting transform is not composited. Thirty direct writes are.
+            const groups = gsap.utils.toArray<SVGGElement>(`[data-range="${i}"]`);
+
+            // The blurred ranges translate but never scale. An SVG filter is
+            // re-rasterised whenever the element it applies to changes size,
+            // which is the single most expensive thing this scene can do;
+            // translating an already-rasterised layer is nearly free.
+            const blurred = i < BLUR_LAYERS;
+
             timeline.fromTo(
-              root.current,
-              { [`--parallax-${i}`]: '0px', [`--scale-${i}`]: 1 },
+              groups,
+              { y: 0, scale: 1 },
               {
-                [`--parallax-${i}`]: `${(travel * (d - PIVOT) * 0.62).toFixed(0)}px`,
-                [`--scale-${i}`]: 1 + d * (mobile ? 0.22 : 0.38),
+                y,
+                scale: blurred ? 1 : 1 + d * (mobile ? 0.22 : 0.38),
+                svgOrigin: `${SCENE.width / 2} ${SCENE.height * 0.44}`,
                 ease: 'none',
                 duration: 1,
               },
+              0,
+            );
+
+            // Markers ride their range, so they move with the same value.
+            timeline.fromTo(
+              gsap.utils.toArray<HTMLElement>(`[data-marker-range="${i}"]`),
+              { y: 0 },
+              { y, ease: 'none', duration: 1 },
               0,
             );
           }
@@ -112,9 +140,9 @@ export function Hero() {
           // The light holds near the horizon while the valley moves — the one
           // fixed thing to measure the descent against.
           timeline.fromTo(
-            root.current,
-            { '--light-x': '0px', '--light-y': '0px' },
-            { '--light-x': '-70px', '--light-y': '60px', ease: 'none', duration: 1 },
+            '.env-light',
+            { x: 0, y: 0 },
+            { x: -70, y: 60, ease: 'none', duration: 1 },
             0,
           );
 

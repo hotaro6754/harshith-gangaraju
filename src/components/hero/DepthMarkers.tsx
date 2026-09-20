@@ -48,12 +48,13 @@ export function DepthMarkers({ environment }: DepthMarkersProps) {
             key={marker.label}
             className="depth-marker"
             data-marker
+            // Rides its own range: the hero timeline moves this by the same
+            // amount it moves the ridge being named, so the label and the
+            // thing it labels stay one object.
+            data-marker-range={marker.range}
             style={
               {
                 top: `${top.toFixed(1)}%`,
-                // Rides its own range, so the label and the ridge it names
-                // move as one object.
-                '--marker-parallax': `var(--parallax-${marker.range}, 0px)`,
                 // Nearer markers sit further into the frame.
                 '--marker-indent': `${(t * 16).toFixed(1)}%`,
               } as React.CSSProperties
