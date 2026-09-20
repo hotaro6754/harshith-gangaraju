@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Instrument_Serif } from 'next/font/google';
 
+import { Preloader } from '@/components/chrome/Preloader';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 
 import './globals.css';
@@ -49,7 +50,15 @@ export default function RootLayout({
       data-env={HERO_ENVIRONMENT}
       className={`${instrumentSerif.variable} ${geistSans.variable} ${geistMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {/* Without JavaScript the overlay can never be dismissed, so it is
+            removed outright rather than trapping the page behind it. */}
+        <noscript>
+          <style>{`.preloader{display:none}`}</style>
+        </noscript>
+        <Preloader />
+        {children}
+      </body>
     </html>
   );
 }

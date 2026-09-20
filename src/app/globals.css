@@ -312,6 +312,116 @@ body {
 }
 
 /* ==================================================================
+   PRELOADER
+
+   The opening frame. Opens in ink and resolves into the environment, so
+   the first thing that happens is the site's own colour arriving.
+   ================================================================== */
+
+.preloader {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #080b12;
+  transition:
+    opacity 620ms var(--ease-in-out),
+    visibility 0s linear 620ms;
+}
+
+.preloader[data-done='true'] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2rem, 6vh, 3.5rem);
+  padding: var(--gutter);
+  text-align: center;
+  /* Lifts away as the overlay fades, so the opening hands over rather than
+     simply switching off. */
+  transition: transform 620ms var(--ease-in-out);
+}
+
+.preloader[data-done='true'] .preloader-inner {
+  transform: translateY(-1.5rem);
+}
+
+.preloader-name {
+  display: flex;
+  gap: 0.6em;
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #bec1c8;
+}
+
+.preloader-steps {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: min(18rem, 70vw);
+}
+
+.preloader-steps li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(190, 193, 200, 0.4);
+  transition: color 320ms var(--ease-out);
+}
+
+.preloader-steps li[data-ready='true'] {
+  color: rgba(190, 193, 200, 0.92);
+}
+
+/* The rule fills only when its step is genuinely complete. Nothing here
+   animates on a timer pretending to be progress. */
+.preloader-step-rule {
+  width: 3rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 420ms var(--ease-out);
+}
+
+.preloader-steps li[data-ready='true'] .preloader-step-rule {
+  transform: scaleX(1);
+}
+
+.preloader-disciplines {
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(190, 193, 200, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader,
+  .preloader-inner,
+  .preloader-step-rule {
+    transition-duration: 1ms;
+  }
+}
+
+/* ==================================================================
    HERO
    ================================================================== */
 
@@ -330,19 +440,23 @@ body {
   z-index: 2;
   height: 100%;
   padding: var(--gutter);
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* The composition is centred, but the CTA is a real link, so this layer
+     cannot swallow pointer events wholesale. */
   pointer-events: none;
 }
 
-.hero-meta,
-.hero-cue {
+.hero-name {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 0.6em;
+  margin: 0 0 clamp(1.75rem, 5vh, 3rem);
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
 }
@@ -350,13 +464,10 @@ body {
 /* Sits high enough that only the last line meets the nearest ridge. Total
    occlusion reads as a bug; partial occlusion is what sells the depth. */
 .hero-headline {
-  align-self: center;
-  margin: 0 0 14vh;
-  max-width: 15ch;
-  font-family: var(--font-display), system-ui, sans-serif;
-  /* Larger than the grotesk it replaced: a serif at the same size reads
-     noticeably smaller, and the hero needs the scale. */
-  font-size: clamp(2.75rem, 8.8vw, 8.5rem);
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display), serif;
+  font-size: clamp(2.5rem, 7.4vw, 6.75rem);
   font-weight: 400;
   /* SplitText masks each line to its own line box, so anything tighter clips
      the descenders until the mask is released after the reveal. */
@@ -380,66 +491,73 @@ body {
   will-change: transform;
 }
 
-.hero-cue {
-  position: absolute;
-  z-index: 4;
-  inset: auto var(--gutter) var(--gutter);
-  pointer-events: none;
-}
-
-/* ==================================================================
-   DEPTH MARKERS
-
-   Each marker rides its own range at that range's parallax speed, so the
-   label and the ridge it names move as one object.
-   ================================================================== */
-
-.depth-markers {
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  pointer-events: none;
-}
-
-.depth-marker {
-  position: absolute;
-  left: calc(var(--gutter) + var(--marker-indent, 0%));
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: baseline;
-  column-gap: 0.75rem;
-  opacity: 0;
-  transform: translate3d(0, var(--marker-parallax, 0px), 0);
-}
-
-.depth-marker-rule {
-  grid-column: 1 / -1;
-  width: clamp(3rem, 9vw, 7rem);
-  height: 1px;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(to right, var(--env-ink), transparent);
-  opacity: 0.45;
-}
-
-.depth-marker-label {
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.25rem, 2.6vw, 2.25rem);
-  line-height: 1;
-  color: var(--env-ink);
-}
-
-.depth-marker-note {
+.hero-disciplines {
+  margin: clamp(1.5rem, 4vh, 2.5rem) 0 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
+  font-size: 0.6875rem;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
 }
 
-@media (max-width: 640px) {
-  .depth-marker-note {
-    display: none;
-  }
+/* ---- CTA ---- */
+
+.hero-cta {
+  pointer-events: auto;
+  position: absolute;
+  bottom: var(--gutter);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--env-ink-muted);
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+.hero-cta:hover,
+.hero-cta:focus-visible {
+  color: var(--env-ink);
+}
+
+/* A line that draws downward on a loop — directional without an arrow, and
+   cheap: one transform on a 1px element. */
+.hero-cta-line {
+  width: 1px;
+  height: clamp(2rem, 5vh, 3.25rem);
+  background: currentColor;
+  transform-origin: 50% 0;
+  animation: cta-draw 2.4s var(--ease-in-out) infinite;
+}
+
+@keyframes cta-draw {
+  0% { transform: scaleY(0); opacity: 0; }
+  30% { opacity: 1; }
+  70% { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+/* ---- Threshold ---- */
+
+.hero-threshold {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: var(--gutter);
+  translate: -50% 0;
+  margin: 0;
+  opacity: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--env-ink);
 }
 
 /* ==================================================================

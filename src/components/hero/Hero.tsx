@@ -243,7 +243,24 @@ export function Hero() {
           timeline.to('.kinetic-band', { opacity: 0, ease: 'none', duration: 0.1 }, 0.9);
 
           // ---- Chrome --------------------------------------------------
-          timeline.to('[data-hero-cue]', { opacity: 0, ease: 'none', duration: 0.12 }, 0);
+          // The name and disciplines belong to the opening frame, so they
+          // leave with the headline rather than lingering over the descent.
+          timeline.to(
+            ['.hero-name', '[data-hero-sub]', '[data-hero-cta]'],
+            { opacity: 0, y: -18, ease: 'none', duration: 0.1 },
+            0,
+          );
+
+          // ---- The threshold ------------------------------------------
+          // The hero does not simply run out. At the end of the descent the
+          // next chapter is named, so leaving the landscape reads as crossing
+          // into somewhere rather than as the animation finishing.
+          timeline.fromTo(
+            '[data-hero-threshold]',
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, ease: 'power2.out', duration: 0.08 },
+            0.9,
+          );
         },
       );
 
@@ -273,10 +290,14 @@ export function Hero() {
       <DepthMarkers environment={HERO_ENVIRONMENT} />
 
       <div className="hero-content">
-        <header className="hero-meta">
-          <span>Harshith Gangaraju</span>
-          <span>Cybersecurity · AI · Infrastructure</span>
-        </header>
+        {/* Centered on purpose. A left-aligned headline with the scene behind
+            it reads as a caption over a picture; centred, it becomes the
+            composed first frame of the site, and the landscape resolves
+            around it rather than beside it. */}
+        <p className="hero-name">
+          <span>Harshith</span>
+          <span>Gangaraju</span>
+        </p>
 
         <h1 className="hero-headline" data-hero-headline>
           {HEADLINE.map((line) => (
@@ -287,6 +308,18 @@ export function Hero() {
             </span>
           ))}
         </h1>
+
+        <p className="hero-disciplines" data-hero-sub>
+          Cybersecurity · AI · Infrastructure
+        </p>
+
+        {/* A real link, not a decorative cue: it is reachable by keyboard and
+            actually goes where it says. The drawn line is the flourish; the
+            anchor is the affordance. */}
+        <a className="hero-cta" href="#work" data-hero-cta data-cursor="Enter">
+          <span className="hero-cta-label">Enter the work</span>
+          <span className="hero-cta-line" aria-hidden="true" />
+        </a>
       </div>
 
       <KineticBand
@@ -300,10 +333,11 @@ export function Hero() {
 
       <div className="grain" />
 
-      <footer className="hero-cue" data-hero-cue>
-        <span>Scroll to descend</span>
-        <span aria-hidden="true">↓</span>
-      </footer>
+      {/* The threshold. Announced only as the descent ends, so crossing out
+          of the hero is a deliberate moment rather than the scene running out. */}
+      <p className="hero-threshold" data-hero-threshold aria-hidden="true">
+        Selected work
+      </p>
     </div>
   );
 }
