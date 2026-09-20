@@ -1,26 +1,583 @@
 @import "tailwindcss";
 
+/* ==================================================================
+   ENVIRONMENT TOKENS
+
+   Six atmospheric states. Values are verbatim from the FeralUI Gradient
+   Builder (SCENES › Mist) — see src/lib/environments.ts and the colophon.
+
+   Band roles: 1 sky · 2 air/light tint · 3-6 range tones, far -> near.
+   Stop positions are fixed by the reference generator.
+
+   There is deliberately no prefers-color-scheme rule here. The palette is
+   content, not an OS preference: the environment state machine owns it.
+   ================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --env-stop-1: 8.3%;
+  --env-stop-2: 25%;
+  --env-stop-3: 41.7%;
+  --env-stop-4: 58.3%;
+  --env-stop-5: 75%;
+  --env-stop-6: 91.7%;
+
+  /* Motion language. See the plan, §H. */
+  --dur-micro: 160ms;
+  --dur-element: 340ms;
+  --dur-section: 720ms;
+  --dur-environment: 1200ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Rhythm */
+  --gutter: clamp(1rem, 4vw, 4.5rem);
+  --measure: 62ch;
+}
+
+[data-env="morning-mist"] {
+  --env-sky: #fbf2e2;
+  --env-air: #f3ddc2;
+  --env-far: #d9bcae;
+  --env-mid: #b08f9b;
+  --env-near: #7a6483;
+  --env-ground: #463a5e;
+  --env-light: #fcf7ec;
+  --env-ink: #463a5e;
+  --env-haze: 0.5;
+  --env-noise: 0.12;
+}
+
+[data-env="blue-hour"] {
+  --env-sky: #eaf2f9;
+  --env-air: #d3e3f0;
+  --env-far: #a9c4db;
+  --env-mid: #7fa0c2;
+  --env-near: #54779f;
+  --env-ground: #324e78;
+  --env-light: #f1f7fb;
+  --env-ink: #324e78;
+  --env-haze: 0.5;
+  --env-noise: 0.12;
+}
+
+[data-env="ink-wash"] {
+  --env-sky: #f8f6f0;
+  --env-air: #eae5d9;
+  --env-far: #c8c2b3;
+  --env-mid: #9a9483;
+  --env-near: #6b6558;
+  --env-ground: #3b362e;
+  --env-light: #faf9f5;
+  --env-ink: #3b362e;
+  --env-haze: 0.62;
+  --env-noise: 0.16;
+}
+
+[data-env="dusk-ember"] {
+  --env-sky: #fbe7cd;
+  --env-air: #f5c8a1;
+  --env-far: #dd9b88;
+  --env-mid: #b06e80;
+  --env-near: #7a4b6f;
+  --env-ground: #452f56;
+  --env-light: #fdefdf;
+  --env-ink: #452f56;
+  --env-haze: 0.5;
+  --env-noise: 0.12;
+}
+
+[data-env="pine-wind"] {
+  --env-sky: #f2f7ed;
+  --env-air: #deebd5;
+  --env-far: #b6cfb1;
+  --env-mid: #88ab8d;
+  --env-near: #5c8267;
+  --env-ground: #375343;
+  --env-light: #f7faf3;
+  --env-ink: #375343;
+  --env-haze: 0.45;
+  --env-noise: 0.12;
+}
+
+/* The one dark environment. Stop 1 is the darkest (night zenith) and the
+   ramp brightens toward the horizon — correct, not a mistake. Text is lit
+   by the moon, so --env-ink is the moon's own colour. */
+[data-env="moonlit"] {
+  --env-sky: #101828;
+  --env-air: #3a4a6b;
+  --env-far: #33415f;
+  --env-mid: #26324c;
+  --env-near: #1b2439;
+  --env-ground: #111826;
+  --env-light: #bec1c8;
+  --env-ink: #bec1c8;
+  --env-haze: 0.5;
+  --env-noise: 0.14;
+}
+
+/* Muted ink is derived, never authored — it always belongs to its palette. */
+[data-env] {
+  --env-ink-muted: color-mix(in oklab, var(--env-ink) 62%, var(--env-sky));
+  --env-rule: color-mix(in oklab, var(--env-ink) 22%, transparent);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-ink: var(--env-ink);
+  --color-ink-muted: var(--env-ink-muted);
+  --color-sky: var(--env-sky);
+  --color-rule: var(--env-rule);
+  --font-display: var(--font-archivo);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ==================================================================
+   BASE
+   ================================================================== */
+
+html {
+  background: var(--env-sky);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--env-sky);
+  color: var(--env-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--dur-environment) var(--ease-in-out),
+    color var(--dur-environment) var(--ease-in-out);
+}
+
+::selection {
+  background: var(--env-ink);
+  color: var(--env-sky);
+}
+
+:focus-visible {
+  outline: 2px solid var(--env-ink);
+  outline-offset: 3px;
+}
+
+/* ==================================================================
+   ENVIRONMENT SURFACE
+
+   The base gradient. `in oklab` is what the reference uses and it is why
+   the mid-tones stay clean instead of going muddy through sRGB.
+   ================================================================== */
+
+.env-surface {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    in oklab,
+    var(--env-sky) var(--env-stop-1),
+    var(--env-air) var(--env-stop-2),
+    var(--env-far) var(--env-stop-3),
+    var(--env-mid) var(--env-stop-4),
+    var(--env-near) var(--env-stop-5),
+    var(--env-ground) var(--env-stop-6)
+  );
+}
+
+.env-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.env-stack {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.env-stack > [data-env-layer] {
+  position: absolute;
+  inset: 0;
+  will-change: opacity;
+}
+
+/* Only ever two scenes carry non-zero opacity. `visibility` skips painting
+   without touching layout, so toggling it mid-scrub cannot cause a reflow. */
+.env-stack > [data-env-layer][data-active="false"] {
+  visibility: hidden;
+}
+
+.env-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* ==================================================================
+   PARALLAX
+
+   Depth is the site's navigation model, so these speeds are not decorative:
+   near ranges are what you operate, far ranges are what you model.
+
+   One CSS variable per depth, set on the hero root and inherited by every
+   stacked scene. GSAP writes six variables per frame instead of thirty
+   inline transforms, and the browser still composites each layer.
+   ================================================================== */
+
+[data-layer="range"] {
+  transform: translate3d(0, var(--parallax, 0px), 0);
+}
+
+.range-0 { --parallax: var(--parallax-0, 0px); }
+.range-1 { --parallax: var(--parallax-1, 0px); }
+.range-2 { --parallax: var(--parallax-2, 0px); }
+.range-3 { --parallax: var(--parallax-3, 0px); }
+.range-4 { --parallax: var(--parallax-4, 0px); }
+.range-5 { --parallax: var(--parallax-5, 0px); }
+
+/* ==================================================================
+   LIGHT SOURCE
+
+   Outside the stretched SVG so it stays circular at every aspect ratio.
+   Sized from the container height with `aspect-ratio: 1`, at the same
+   proportions the reference uses: disc 10.4% of height, halo 3.4x that.
+
+   Scroll tracks it across; the cursor nudges it.
+   ================================================================== */
+
+.env-light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translate3d(var(--light-x, 0px), var(--light-y, 0px), 0);
+}
+
+.env-halo,
+.env-sun {
+  position: absolute;
+  left: var(--sun-x);
+  top: var(--sun-y);
+  translate: -50% -50%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.env-sun {
+  height: 10.4%;
+  background: var(--sun-color);
+  opacity: 0.85;
+}
+
+.env-halo {
+  height: 35.4%;
+  background: radial-gradient(
+    circle closest-side,
+    color-mix(in oklab, var(--sun-color) 40%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+/* ==================================================================
+   FOG
+
+   Transform and opacity only. Animating an SVG filter or a stop-color
+   would force a repaint every frame; this stays on the compositor.
+   ================================================================== */
+
+.fog-veil {
+  animation: fog-drift var(--fog-dur, 40s) var(--ease-in-out) infinite alternate;
+}
+
+.fog-veil ellipse {
+  opacity: var(--fog-alpha, 0.5);
+  animation: fog-breathe calc(var(--fog-dur, 40s) * 0.55) var(--ease-in-out) infinite alternate;
+}
+
+@keyframes fog-drift {
+  from {
+    transform: translateX(calc(var(--fog-amp, 32px) * -1));
+  }
+  to {
+    transform: translateX(var(--fog-amp, 32px));
+  }
+}
+
+@keyframes fog-breathe {
+  from {
+    opacity: calc(var(--fog-alpha, 0.5) * 0.6);
+  }
+  to {
+    opacity: var(--fog-alpha, 0.5);
+  }
+}
+
+/* ==================================================================
+   GRAIN
+
+   One repeating tile, never feTurbulence at runtime.
+   ================================================================== */
+
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* The preset's noise value is the reference's own scale; halved here
+     because that scale assumes a flat export, not type sitting on top. */
+  opacity: calc(var(--env-noise, 0.12) * 0.5);
+  background-image: url("/grain.png");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  mix-blend-mode: soft-light;
+}
+
+/* ==================================================================
+   HERO
+   ================================================================== */
+
+.hero {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  padding: var(--gutter);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  pointer-events: none;
+}
+
+.hero-meta,
+.hero-cue {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+/* Sits high enough that only the last line meets the nearest ridge. Total
+   occlusion reads as a bug; partial occlusion is what sells the depth. */
+.hero-headline {
+  align-self: center;
+  margin: 0 0 14vh;
+  max-width: 15ch;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(2.35rem, 7.6vw, 7rem);
+  font-weight: 500;
+  font-stretch: 80%;
+  /* SplitText masks each line to its own line box, so anything tighter clips
+     Archivo's descenders until the mask is released after the reveal. */
+  line-height: 1.16;
+  letter-spacing: -0.035em;
+  color: var(--env-ink);
+}
+
+/* SplitText's mask wrapper. Lines rise out of their own clip, which reads as
+   the landscape revealing them rather than as text fading in. */
+.hero-line {
+  will-change: transform;
+}
+
+.hero-cue {
+  position: absolute;
+  z-index: 4;
+  inset: auto var(--gutter) var(--gutter);
+  pointer-events: none;
+}
+
+/* ==================================================================
+   KINETIC BANDS
+   ================================================================== */
+
+.kinetic-band {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.2em;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.kinetic-row {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.kinetic-track {
+  display: inline-flex;
+  gap: 0.28em;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(2rem, 8.4vw, 7.5rem);
+  font-weight: 600;
+  font-stretch: 112%;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  color: var(--env-ink);
+  /* Low enough to stay atmosphere rather than content: the bands are texture
+     passing through the landscape, not a second headline. */
+  opacity: 0.13;
+  will-change: transform;
+}
+
+.kinetic-track > span {
+  flex: 0 0 auto;
+}
+
+/* ==================================================================
+   SOUNDING LINE
+
+   The environment control. Grab, resist, detent, release.
+   ================================================================== */
+
+.sounding {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  right: calc(var(--gutter) * 0.6);
+  translate: 0 -50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sounding-track {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 260px;
+  width: 1px;
+  background: var(--env-rule);
+}
+
+.sounding-mark {
+  width: 7px;
+  height: 1px;
+  background: var(--env-ink);
+  opacity: 0.28;
+  transition: opacity var(--dur-micro) var(--ease-out);
+}
+
+.sounding-mark[data-reached="true"] {
+  opacity: 0.72;
+}
+
+.sounding-knob {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -14px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+}
+
+.sounding-knob:active {
+  cursor: grabbing;
+}
+
+.sounding-knob-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--env-ink);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--env-sky) 70%, transparent);
+  transition: scale var(--dur-micro) var(--ease-out);
+}
+
+.sounding-knob:hover .sounding-knob-dot,
+.sounding-knob:focus-visible .sounding-knob-dot {
+  scale: 1.25;
+}
+
+.sounding-label {
+  margin: 0;
+  max-width: 6rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--env-ink-muted);
+}
+
+/* Coarse pointers get the same control without the drag: the marks stay,
+   the travel does not. */
+@media (pointer: coarse) {
+  .sounding-track {
+    height: 168px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sounding {
+    right: 0.5rem;
+  }
+
+  .sounding-label {
+    display: none;
+  }
+}
+
+.lab-outro {
+  display: grid;
+  place-items: center;
+  min-height: 70svh;
+  padding: var(--gutter);
+  background: var(--env-sky);
+  color: var(--env-ink-muted);
+  font-size: 0.9375rem;
+  text-align: center;
+  border-top: 1px solid var(--env-rule);
+}
+
+.lab-outro p {
+  max-width: 34ch;
+  margin: 0;
+}
+
+/* ==================================================================
+   REDUCED MOTION
+
+   A designed variant, not a subtraction: the environment still advances
+   because it carries meaning. Only the continuous motion stops.
+   ================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .fog-veil,
+  .fog-veil ellipse {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    transition: background-color 200ms linear, color 200ms linear;
+  }
 }
