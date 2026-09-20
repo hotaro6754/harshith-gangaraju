@@ -229,7 +229,12 @@ export const ENVIRONMENTS: Record<EnvironmentId, Environment> = {
 /** Descent order: light → dark, abstract → operational. */
 export const ENVIRONMENT_SEQUENCE: readonly EnvironmentId[] = ENVIRONMENT_IDS;
 
-export const DEFAULT_ENVIRONMENT: EnvironmentId = 'morning-mist';
+/**
+ * The site commits to one environment. The other five stay here as the
+ * harvested reference set — swapping `HERO_ENVIRONMENT` and this constant is
+ * all it takes to try another.
+ */
+export const DEFAULT_ENVIRONMENT: EnvironmentId = 'moonlit';
 
 /* ------------------------------------------------------------------ *
  * Derived scene constants

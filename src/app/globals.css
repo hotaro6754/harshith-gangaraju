@@ -192,24 +192,6 @@ body {
   display: block;
 }
 
-.env-stack {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.env-stack > [data-env-layer] {
-  position: absolute;
-  inset: 0;
-  will-change: opacity;
-}
-
-/* Only ever two scenes carry non-zero opacity. `visibility` skips painting
-   without touching layout, so toggling it mid-scrub cannot cause a reflow. */
-.env-stack > [data-env-layer][data-active="false"] {
-  visibility: hidden;
-}
-
 .env-layer {
   position: absolute;
   inset: 0;
@@ -227,15 +209,21 @@ body {
    ================================================================== */
 
 [data-layer="range"] {
-  transform: translate3d(0, var(--parallax, 0px), 0);
+  /* Translate *and* scale. The scale is what turns this from a parallax
+     slide into a descent: near ranges rush past and grow, far ranges barely
+     move, and the scroll reads as travelling through the valley rather than
+     as layers sliding over each other. */
+  transform-box: view-box;
+  transform-origin: 50% 44%;
+  transform: translate3d(0, var(--parallax, 0px), 0) scale(var(--scale, 1));
 }
 
-.range-0 { --parallax: var(--parallax-0, 0px); }
-.range-1 { --parallax: var(--parallax-1, 0px); }
-.range-2 { --parallax: var(--parallax-2, 0px); }
-.range-3 { --parallax: var(--parallax-3, 0px); }
-.range-4 { --parallax: var(--parallax-4, 0px); }
-.range-5 { --parallax: var(--parallax-5, 0px); }
+.range-0 { --parallax: var(--parallax-0, 0px); --scale: var(--scale-0, 1); }
+.range-1 { --parallax: var(--parallax-1, 0px); --scale: var(--scale-1, 1); }
+.range-2 { --parallax: var(--parallax-2, 0px); --scale: var(--scale-2, 1); }
+.range-3 { --parallax: var(--parallax-3, 0px); --scale: var(--scale-3, 1); }
+.range-4 { --parallax: var(--parallax-4, 0px); --scale: var(--scale-4, 1); }
+.range-5 { --parallax: var(--parallax-5, 0px); --scale: var(--scale-5, 1); }
 
 /* ==================================================================
    LIGHT SOURCE
@@ -400,6 +388,61 @@ body {
 }
 
 /* ==================================================================
+   DEPTH MARKERS
+
+   Each marker rides its own range at that range's parallax speed, so the
+   label and the ridge it names move as one object.
+   ================================================================== */
+
+.depth-markers {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+}
+
+.depth-marker {
+  position: absolute;
+  left: calc(var(--gutter) + var(--marker-indent, 0%));
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  opacity: 0;
+  transform: translate3d(0, var(--marker-parallax, 0px), 0);
+}
+
+.depth-marker-rule {
+  grid-column: 1 / -1;
+  width: clamp(3rem, 9vw, 7rem);
+  height: 1px;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(to right, var(--env-ink), transparent);
+  opacity: 0.45;
+}
+
+.depth-marker-label {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.25rem, 2.6vw, 2.25rem);
+  line-height: 1;
+  color: var(--env-ink);
+}
+
+.depth-marker-note {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+@media (max-width: 640px) {
+  .depth-marker-note {
+    display: none;
+  }
+}
+
+/* ==================================================================
    KINETIC BANDS
    ================================================================== */
 
@@ -429,9 +472,10 @@ body {
   line-height: 0.98;
   letter-spacing: -0.012em;
   color: var(--env-ink);
-  /* Low enough to stay atmosphere rather than content: the bands are texture
-     passing through the landscape, not a second headline. */
-  opacity: 0.13;
+  /* Texture, not content. Giant scrolling words read as generic the moment
+     they are legible enough to compete — these sit behind the depth markers
+     and only register as movement. */
+  opacity: 0.07;
   will-change: transform;
 }
 

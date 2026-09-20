@@ -6,31 +6,43 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { useRef } from 'react';
 
-import { EnvironmentStack } from '@/components/environment/EnvironmentStack';
-import { environment } from '@/components/environment/environment-store';
-import { SoundingLine } from '@/components/environment/SoundingLine';
+import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
+import { ENVIRONMENTS, type EnvironmentId } from '@/lib/environments';
 
+import { DepthMarkers } from './DepthMarkers';
 import { KineticBand } from './KineticBand';
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
 /**
- * How far the environment travels across the pin. The hero covers the first
- * three states; the rest belong to the sections below it.
+ * One environment, committed to.
+ *
+ * Moonlit: every one of its six stops rates AAA, it is the only dark state in
+ * the set, and a single cold light over a deep valley is the right register for
+ * someone who builds detection systems. Change this one constant to try
+ * another — every scene value lives in `ENVIRONMENTS`.
  */
-const HERO_ENV_SPAN = 2;
+const HERO_ENVIRONMENT: EnvironmentId = 'moonlit';
+
+const RANGES = ENVIRONMENTS[HERO_ENVIRONMENT].ranges;
 
 /**
- * Depth speeds, as a fraction of the pin distance.
+ * Depth speed for a range, as a fraction of the descent.
  *
- * These are the site's argument, not decoration: a range's parallax speed is
- * its abstraction layer. Near ranges — the things you operate — move fastest;
- * far ranges — the things you model — barely move at all.
+ * This is the site's argument, not decoration: a range's speed is its
+ * abstraction layer. Near ranges — the things you operate — rush past. Far
+ * ranges — the things you model — barely shift.
  */
-const parallaxSpeed = (index: number, count: number): number =>
-  0.06 + (count === 1 ? 0 : index / (count - 1)) * 0.34;
+const depth = (index: number): number =>
+  RANGES === 1 ? 0 : index / (RANGES - 1);
 
-const MAX_RANGES = 6;
+/**
+ * The hero's one timing rule: the headline owns the frame, then hands it over.
+ * Nothing else may appear before HANDOVER, because two display layers in the
+ * same optical space is what makes type look mangled.
+ */
+const HEADLINE_OUT = 0.3;
+const HANDOVER = HEADLINE_OUT + 0.12;
 
 export function Hero() {
   const root = useRef<HTMLDivElement>(null);
@@ -48,53 +60,55 @@ export function Hero() {
         (context) => {
           const { reduced, mobile } = context.conditions as Record<string, boolean>;
 
-          // Reduced motion is a designed variant, not a subtraction. The
-          // environment still advances — it carries meaning — but it steps on
-          // section entry instead of being dragged by the scrollbar, and
-          // nothing is pinned.
+          // Reduced motion is a designed variant, not a subtraction: the scene
+          // is static, the headline is simply present, and nothing is pinned.
+          //
+          // The depth markers still have to be there. They start hidden in CSS
+          // so the scroll timeline can bring them in, which means without this
+          // they would silently disappear for exactly the people who cannot
+          // watch them arrive — and they carry the whole point of the
+          // landscape.
           if (reduced) {
-            ScrollTrigger.create({
-              trigger: root.current,
-              start: 'top top',
-              end: 'bottom top',
-              onUpdate: (self) => {
-                if (environment.manual) return;
-                environment.set(Math.round(self.progress * HERO_ENV_SPAN));
-              },
-            });
+            gsap.set('[data-marker]', { opacity: 1, x: 0 });
             return;
           }
-
-          const pinDistance = mobile ? '+=160%' : '+=250%';
-          const parallaxRange = mobile ? 0.55 : 1;
 
           const timeline = gsap.timeline({
             scrollTrigger: {
               trigger: root.current,
               start: 'top top',
-              end: pinDistance,
+              end: mobile ? '+=150%' : '+=200%',
               pin: true,
               scrub: 0.6,
               anticipatePin: 1,
               invalidateOnRefresh: true,
-              onUpdate: (self) => {
-                if (environment.manual) return;
-                environment.set(self.progress * HERO_ENV_SPAN);
-              },
             },
           });
 
-          // ---- Parallax ------------------------------------------------
-          // Six CSS variables rather than thirty inline transforms: GSAP
-          // writes once per depth and the browser composites every stacked
-          // scene from the same value.
-          const travel = (mobile ? 260 : 420) * parallaxRange;
-          for (let i = 0; i < MAX_RANGES; i++) {
+          // ---- The descent ---------------------------------------------
+          // Not a parallax slide. The viewer travels *forward* into the
+          // valley: near ranges sweep down past them and out of frame while
+          // the ranges behind grow into the space. Layers peel away one at a
+          // time and the horizon keeps opening.
+          //
+          // Translating alone is the generic effect. The scale is what makes
+          // it read as travel, and the direction matters — moving everything
+          // up just empties the frame.
+          // Ranges spread *around* the horizon rather than all sliding one
+          // way: everything nearer than the pivot falls, everything beyond it
+          // rises, and all of it grows. That is what a descent toward a
+          // horizon actually looks like, and it keeps the frame populated —
+          // translating every layer in the same direction just empties it.
+          const travel = mobile ? 300 : 460;
+          const PIVOT = 0.3;
+          for (let i = 0; i < RANGES; i++) {
+            const d = depth(i);
             timeline.fromTo(
               root.current,
-              { [`--parallax-${i}`]: '0px' },
+              { [`--parallax-${i}`]: '0px', [`--scale-${i}`]: 1 },
               {
-                [`--parallax-${i}`]: `${-travel * parallaxSpeed(i, MAX_RANGES)}px`,
+                [`--parallax-${i}`]: `${(travel * (d - PIVOT) * 0.62).toFixed(0)}px`,
+                [`--scale-${i}`]: 1 + d * (mobile ? 0.22 : 0.38),
                 ease: 'none',
                 duration: 1,
               },
@@ -102,13 +116,27 @@ export function Hero() {
             );
           }
 
-          // ---- Light source -------------------------------------------
+          // The light holds near the horizon while the valley moves — the one
+          // fixed thing to measure the descent against.
           timeline.fromTo(
             root.current,
             { '--light-x': '0px', '--light-y': '0px' },
-            { '--light-x': '120px', '--light-y': '70px', ease: 'none', duration: 1 },
+            { '--light-x': '-70px', '--light-y': '60px', ease: 'none', duration: 1 },
             0,
           );
+
+          // ---- Depth markers -------------------------------------------
+          // The concept, stated. Each marker rides its own range, so reading
+          // it and watching it move are the same act. They take over the
+          // frame once the headline has cleared it.
+          const markers = gsap.utils.toArray<HTMLElement>('[data-marker]');
+          timeline.fromTo(
+            markers,
+            { opacity: 0, x: -14 },
+            { opacity: 1, x: 0, ease: 'power2.out', stagger: 0.05, duration: 0.14 },
+            HANDOVER,
+          );
+          timeline.to(markers, { opacity: 0, ease: 'none', duration: 0.08 }, 0.92);
 
           // ---- Headline ------------------------------------------------
           const headline = root.current?.querySelector<HTMLElement>('[data-hero-headline]');
@@ -119,6 +147,19 @@ export function Hero() {
               mask: 'lines',
               autoSplit: true,
               onSplit: (split) => {
+                // Two animations touch these lines: a one-shot reveal on load
+                // and a scrubbed drift tied to the scrollbar. They must not
+                // share a target or a property — a scrubbed tween re-asserts
+                // its start value every frame and will hold the reveal
+                // permanently half-finished, which is exactly what mangled
+                // the headline.
+                //
+                // So: the reveal moves the line *inside* its mask; the drift
+                // and exit move the mask wrapper around it.
+                const wrappers = split.lines
+                  .map((line) => line.parentElement)
+                  .filter((el): el is HTMLElement => el !== null && el !== headline);
+
                 const reveal = gsap.from(split.lines, {
                   yPercent: 120,
                   duration: 1.1,
@@ -126,84 +167,92 @@ export function Hero() {
                   stagger: 0.08,
                   onComplete: () => {
                     // The mask exists to clip the rise, and its job is done.
-                    // Leaving it on clips the horizontal drift below, which
-                    // reads as broken text rather than as depth.
-                    for (const line of split.lines) {
-                      const wrapper = line.parentElement;
-                      if (wrapper) wrapper.style.overflow = 'visible';
-                    }
+                    // Leaving it on clips the drift.
+                    for (const wrapper of wrappers) wrapper.style.overflow = 'visible';
                   },
                 });
 
-                // The lines drift apart as the scene opens up, so the headline
-                // reads as sitting in the landscape rather than on top of it.
-                split.lines.forEach((line, i) => {
+                // Lines sit at different depths, so they separate slightly as
+                // the valley opens. Kept small: enough to feel like space,
+                // not enough for two lines to collide.
+                // Drift and exit must not overlap in time either — a second
+                // tween on yPercent starting while the first is still running
+                // re-asserts the first's value and the headline never leaves.
+                wrappers.forEach((wrapper, i) => {
                   timeline.to(
-                    line,
-                    {
-                      xPercent: i % 2 === 0 ? -5 : 5,
-                      yPercent: -16 - i * 6,
-                      ease: 'none',
-                      duration: 1,
-                    },
+                    wrapper,
+                    { xPercent: i * -2.5, yPercent: -8 - i * 3, ease: 'none', duration: HEADLINE_OUT },
                     0,
                   );
                 });
 
+                // Out before anything else arrives. Nothing else may occupy
+                // this optical space until the exit has finished.
+                timeline.to(
+                  wrappers,
+                  { yPercent: -95, opacity: 0, ease: 'power2.in', stagger: 0.03, duration: 0.12 },
+                  HEADLINE_OUT,
+                );
+
                 return reveal;
               },
             });
-
-            timeline.to(headline, { opacity: 0, ease: 'none', duration: 0.25 }, 0.68);
           }
 
           // ---- Kinetic bands -------------------------------------------
-          // One row moves with the scroll, the next against it. The shear
-          // between them is what makes the scroll feel physical; doing it in
-          // the master timeline keeps it in step with the parallax.
+          // Strictly after the headline is gone — overlapping them was what
+          // made the type look mangled, two competing display layers in the
+          // same optical space.
+          //
+          // Demoted to texture. Giant scrolling words are the most common
+          // effect on the web; as the main event they make the whole hero
+          // look generic. Running faint, behind the depth markers, they give
+          // the middle of the descent something moving without competing for
+          // the read.
+          const BANDS_IN = HANDOVER;
+
+          timeline.fromTo(
+            '.kinetic-band',
+            { opacity: 0 },
+            { opacity: 1, ease: 'none', duration: 0.12 },
+            BANDS_IN,
+          );
+
           const rows = gsap.utils.toArray<HTMLElement>('[data-band-row]');
           rows.forEach((row, i) => {
             const reverse = row.dataset.direction === 'reverse';
-            const distance = (mobile ? 18 : 34) + i * 4;
+            const distance = (mobile ? 16 : 30) + i * 5;
             timeline.fromTo(
               row.querySelector('.kinetic-track'),
               { xPercent: reverse ? -distance : distance - 33.333 },
               {
                 xPercent: reverse ? distance - 33.333 : -distance,
                 ease: 'none',
-                duration: 1,
+                duration: 1 - BANDS_IN,
               },
-              0,
+              BANDS_IN,
             );
           });
 
-          timeline.fromTo(
-            '.kinetic-band',
-            { opacity: 0 },
-            { opacity: 1, ease: 'none', duration: 0.18 },
-            0.42,
-          );
+          timeline.to('.kinetic-band', { opacity: 0, ease: 'none', duration: 0.1 }, 0.9);
 
           // ---- Chrome --------------------------------------------------
-          timeline.to(
-            root.current?.querySelector('[data-hero-cue]') ?? [],
-            { opacity: 0, ease: 'none', duration: 0.15 },
-            0,
-          );
+          timeline.to('[data-hero-cue]', { opacity: 0, ease: 'none', duration: 0.12 }, 0);
         },
       );
 
-      // Whoever touched the environment last wins. Scrolling takes control
-      // back from the Sounding Line.
-      const release = () => {
-        environment.manual = false;
-      };
-      window.addEventListener('wheel', release, { passive: true });
-      window.addEventListener('touchmove', release, { passive: true });
+      // The display face swaps in after first paint and changes the
+      // headline's height, which moves the pin's start. Without this the
+      // first scroll after a cold load lands on stale measurements and the
+      // hero appears to slip before it catches — every scroll after it is
+      // fine, which is what makes the bug easy to miss.
+      let cancelled = false;
+      document.fonts?.ready.then(() => {
+        if (!cancelled) ScrollTrigger.refresh();
+      });
 
       return () => {
-        window.removeEventListener('wheel', release);
-        window.removeEventListener('touchmove', release);
+        cancelled = true;
         media.revert();
       };
     },
@@ -211,9 +260,11 @@ export function Hero() {
   );
 
   return (
-    <div ref={root} className="hero">
+    <div ref={root} className="hero" data-env={HERO_ENVIRONMENT}>
       {/* Sky, light, and every range but the nearest. */}
-      <EnvironmentStack part="back" ownsDocumentEnv maxRanges={MAX_RANGES} />
+      <EnvironmentScene id={HERO_ENVIRONMENT} part="back" />
+
+      <DepthMarkers environment={HERO_ENVIRONMENT} />
 
       <div className="hero-content">
         <header className="hero-meta">
@@ -237,7 +288,7 @@ export function Hero() {
 
       {/* The nearest range, its fog and the ground wash — drawn over the
           headline, so the closest mountains occlude the type. */}
-      <EnvironmentStack part="front" maxRanges={MAX_RANGES} />
+      <EnvironmentScene id={HERO_ENVIRONMENT} part="front" />
 
       <div className="grain" />
 
@@ -245,8 +296,6 @@ export function Hero() {
         <span>Scroll to descend</span>
         <span aria-hidden="true">↓</span>
       </footer>
-
-      <SoundingLine />
     </div>
   );
 }
