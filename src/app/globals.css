@@ -842,6 +842,56 @@ body {
   }
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==================================================================
+   MANIFESTO
+
+   Full-bleed and typographic. Every other section is a measured column;
+   this one deliberately is not, because a page where every section has the
+   same shape reads as a template however good the sections are.
+   ================================================================== */
+
+.manifesto {
+  position: relative;
+  padding: clamp(7rem, 22vh, 14rem) var(--gutter);
+  border-top: 1px solid var(--env-rule);
+}
+
+.manifesto-lines {
+  max-width: 82rem;
+  margin: 0 auto;
+}
+
+.manifesto-line {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(2rem, 6.6vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--env-ink);
+}
+
+/* The stagger is the composition. Flush left, these four lines would be a
+   paragraph; stepped, they read as beats. */
+.manifesto-line[data-indent="1"] { padding-left: clamp(1.5rem, 8vw, 8rem); }
+.manifesto-line[data-indent="2"] { padding-left: clamp(3rem, 16vw, 16rem); }
+
+.manifesto-line:last-child {
+  color: var(--env-ink);
+}
+
 /* ==================================================================
    THE DESCENT — everything below the hero
    ================================================================== */
@@ -1188,8 +1238,20 @@ body {
 
 .currently-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(1.75rem, 5vw, 3.5rem);
+}
+
+.currently-column[data-lead='true'] .currently-label {
+  font-family: var(--font-display), serif;
+  font-size: 1.375rem;
+  line-height: 1.2;
+}
+
+@media (max-width: 860px) {
+  .currently-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .currently-list {
@@ -1220,6 +1282,138 @@ body {
 
 /* ==================================================================
    02 — WORK
+
+   The lead project carries real weight; the rest are an index. That
+   difference in scale is the section's hierarchy.
+   ================================================================== */
+
+.featured {
+  display: block;
+  padding-bottom: clamp(3rem, 8vh, 5rem);
+  margin-bottom: clamp(2rem, 5vh, 3.5rem);
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.featured-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.featured-index,
+.featured-depth,
+.featured-meta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+.featured-name {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display), serif;
+  font-size: clamp(3rem, 10vw, 8rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+  color: var(--env-ink);
+}
+
+.featured-name a {
+  border-bottom: 0;
+}
+
+.featured-summary {
+  margin: 0 0 clamp(2rem, 5vh, 3rem);
+  max-width: 40ch;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--env-ink);
+}
+
+/* Asymmetric on purpose: the argument gets the wider measure, the stack
+   sits beside it as reference. */
+.featured-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  margin-bottom: clamp(2rem, 5vh, 3rem);
+}
+
+.featured-premise {
+  margin: 0;
+  max-width: 50ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--env-ink-muted);
+}
+
+.featured-stack {
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+.featured-stack > div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--env-rule);
+}
+
+.featured-stack dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+  padding-top: 0.15rem;
+}
+
+.featured-stack dd {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--env-ink);
+}
+
+.featured-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem 1.5rem;
+}
+
+.featured-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.9375rem;
+}
+
+.featured-cta {
+  color: var(--env-ink);
+}
+
+@media (max-width: 860px) {
+  .featured-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .featured-stack > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+  }
+}
+
+/* ==================================================================
+   02 — WORK INDEX
    ================================================================== */
 
 .work-list {
@@ -1345,27 +1539,59 @@ body {
    03 — CONTACT
    ================================================================== */
 
-.contact-line {
-  margin: 0 0 2rem;
-  max-width: 24ch;
+.section-contact {
+  /* Full-bleed and tall. The site opened on a statement; it closes on one,
+     so the whole thing reads as bracketed rather than as running out of
+     sections. */
+  position: relative;
+  padding: clamp(8rem, 26vh, 16rem) var(--gutter) clamp(3rem, 8vh, 5rem);
+  border-top: 1px solid var(--env-rule);
+}
+
+.contact-statement {
+  margin: 0 auto clamp(3rem, 9vh, 5rem);
+  max-width: 82rem;
   font-family: var(--font-display), serif;
-  font-size: clamp(1.75rem, 3.4vw, 3rem);
-  line-height: 1.18;
-  letter-spacing: -0.015em;
+  font-size: clamp(2.25rem, 7vw, 6rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.022em;
   color: var(--env-ink);
+}
+
+.contact-primary {
+  display: block;
+  max-width: 82rem;
+  margin: 0 auto clamp(2rem, 5vh, 3rem);
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.375rem, 3.2vw, 2.5rem);
+  color: var(--env-ink);
+  border-bottom: 0;
+  width: fit-content;
 }
 
 .contact-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem 2rem;
-  margin: 0 0 clamp(4rem, 10vh, 7rem);
+  max-width: 82rem;
+  margin: 0 auto clamp(4rem, 12vh, 8rem);
   padding: 0;
   list-style: none;
-  font-size: 1.0625rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+.contact-location {
+  color: var(--env-ink-muted);
 }
 
 .colophon {
+  max-width: 82rem;
+  margin: 0 auto;
   padding-top: 1.25rem;
   border-top: 1px solid var(--env-rule);
   font-size: 0.8125rem;
@@ -1376,489 +1602,6 @@ body {
 .colophon p {
   margin: 0;
   max-width: 62ch;
-}
-
-/* ==================================================================
-   CASE STUDIES
-   ================================================================== */
-
-.case-article {
-  max-width: 46rem;
-  margin: 0 auto;
-  padding: clamp(6rem, 14vh, 10rem) var(--gutter) clamp(5rem, 12vh, 8rem);
-}
-
-.case-back {
-  margin: 0 0 clamp(2.5rem, 6vh, 4rem);
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.case-title {
-  margin: 0 0 1rem;
-  font-family: var(--font-display), serif;
-  font-size: clamp(2.5rem, 7vw, 5rem);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--env-ink);
-}
-
-.case-summary {
-  margin: 0 0 2.5rem;
-  max-width: 44ch;
-  font-size: clamp(1.0625rem, 1.5vw, 1.25rem);
-  line-height: 1.55;
-  color: var(--env-ink);
-}
-
-.case-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem 2.5rem;
-  margin: 0 0 clamp(3rem, 8vh, 5rem);
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.case-meta dt {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-  margin-bottom: 0.3rem;
-}
-
-.case-meta dd {
-  margin: 0;
-  font-size: 0.9375rem;
-  color: var(--env-ink);
-}
-
-/* ---- MDX prose ---- */
-
-.case-body {
-  font-size: clamp(1rem, 1.25vw, 1.0625rem);
-  line-height: 1.7;
-  color: var(--env-ink-muted);
-}
-
-.case-body h2 {
-  margin: clamp(3rem, 7vh, 4.5rem) 0 1.25rem;
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.625rem, 3vw, 2.25rem);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.015em;
-  color: var(--env-ink);
-}
-
-.case-body h3 {
-  margin: 2.5rem 0 0.75rem;
-  font-size: 1.0625rem;
-  font-weight: 500;
-  color: var(--env-ink);
-}
-
-.case-body p {
-  margin: 0 0 1.25rem;
-}
-
-.case-body strong {
-  color: var(--env-ink);
-  font-weight: 500;
-}
-
-.case-body em {
-  font-style: italic;
-  color: var(--env-ink);
-}
-
-.case-body ul {
-  margin: 0 0 1.5rem;
-  padding-left: 1.1rem;
-  display: grid;
-  gap: 0.625rem;
-}
-
-.case-body li::marker {
-  color: color-mix(in oklab, var(--env-ink) 45%, transparent);
-}
-
-.case-body code {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.8125em;
-  letter-spacing: 0.02em;
-  padding: 0.1em 0.35em;
-  border: 1px solid var(--env-rule);
-  border-radius: 2px;
-  color: var(--env-ink);
-}
-
-/* ---- Metric ---- */
-
-.metric {
-  display: grid;
-  grid-template-columns: minmax(6.5rem, auto) 1fr;
-  align-items: baseline;
-  column-gap: 1.5rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.metric:first-of-type {
-  border-top: 1px solid var(--env-rule);
-}
-
-.metric-value {
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  line-height: 1;
-  color: var(--env-ink);
-}
-
-.metric[data-unmeasured='true'] .metric-value {
-  color: var(--env-ink-muted);
-  opacity: 0.55;
-}
-
-.metric-label {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--env-ink);
-}
-
-.metric-source {
-  grid-column: 2;
-  margin-top: 0.3rem;
-  font-size: 0.8125rem;
-  line-height: 1.45;
-  color: var(--env-ink-muted);
-}
-
-/* ---- Decision ---- */
-
-.decision {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  border: 1px solid var(--env-rule);
-  border-left-width: 2px;
-  border-left-color: color-mix(in oklab, var(--env-ink) 45%, transparent);
-}
-
-.decision-title {
-  margin: 0 0 0.35rem;
-  font-family: var(--font-display), serif;
-  font-size: 1.25rem;
-  font-weight: 400;
-  color: var(--env-ink);
-}
-
-.decision-instead {
-  margin: 0 0 1rem;
-  font-size: 0.8125rem;
-  color: var(--env-ink-muted);
-}
-
-.decision-instead span {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.75;
-}
-
-.decision-body p:last-child {
-  margin-bottom: 0;
-}
-
-/* ---- System diagram ---- */
-
-.system-diagram {
-  margin: 2.5rem 0;
-}
-
-.system-diagram svg {
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.system-diagram figcaption {
-  margin-top: 1rem;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--env-ink-muted);
-}
-
-.diagram-edge {
-  fill: none;
-  stroke: var(--env-ink);
-  stroke-width: 1;
-  opacity: 0.3;
-  vector-effect: non-scaling-stroke;
-}
-
-/* `offset-distance` is composited; animating stroke-dashoffset instead would
-   repaint the whole path every frame. */
-.diagram-pulse {
-  fill: var(--env-ink);
-  opacity: 0.7;
-  offset-rotate: 0deg;
-  animation: diagram-flow 3.2s linear infinite;
-}
-
-@keyframes diagram-flow {
-  from {
-    offset-distance: 0%;
-    opacity: 0;
-  }
-  12% {
-    opacity: 0.7;
-  }
-  88% {
-    opacity: 0.7;
-  }
-  to {
-    offset-distance: 100%;
-    opacity: 0;
-  }
-}
-
-.diagram-node-plate {
-  fill: var(--env-sky);
-}
-
-.diagram-node-label,
-.diagram-node-detail {
-  text-anchor: middle;
-}
-
-.diagram-node-label {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  fill: var(--env-ink-muted);
-}
-
-.diagram-node-detail {
-  font-size: 10px;
-  fill: var(--env-ink-muted);
-  opacity: 0.7;
-}
-
-[data-accent='true'] .diagram-node-label {
-  fill: var(--env-ink);
-}
-
-/* ---- Case footer ---- */
-
-.case-foot {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.6fr);
-  gap: clamp(2rem, 5vw, 4rem);
-  margin-top: clamp(3.5rem, 9vh, 6rem);
-  padding-top: 2rem;
-  border-top: 1px solid var(--env-rule);
-}
-
-.case-foot h2 {
-  margin: 0 0 1rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-}
-
-.case-stack dl {
-  margin: 0;
-  display: grid;
-  gap: 0.6rem;
-}
-
-.case-stack dl > div {
-  display: grid;
-  grid-template-columns: 7.5rem 1fr;
-  gap: 1rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.case-stack dt {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-  padding-top: 0.15rem;
-}
-
-.case-stack dd {
-  margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--env-ink);
-}
-
-.case-links ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.6rem;
-  font-size: 0.875rem;
-}
-
-@media (max-width: 720px) {
-  .case-foot,
-  .practice-body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .principle {
-    grid-template-columns: 2rem 1fr;
-    row-gap: 0.25rem;
-  }
-
-  .principle-note {
-    grid-column: 2;
-  }
-
-  .case-stack dl > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.25rem;
-  }
-}
-
-/* ==================================================================
-   LAB
-   ================================================================== */
-
-.section-lab {
-  padding-top: clamp(7rem, 16vh, 11rem);
-}
-
-.lab-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.lab-entry {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
-  align-items: start;
-  gap: 1rem 2rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--env-rule);
-  transition: opacity var(--dur-element) var(--ease-out);
-}
-
-.lab-entry:last-child {
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.lab-list:hover .lab-entry:not(:hover) {
-  opacity: 0.45;
-}
-
-.lab-entry-name {
-  margin: 0;
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.375rem, 2.6vw, 2rem);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.015em;
-  color: var(--env-ink);
-}
-
-.lab-entry-name a {
-  border-bottom: 0;
-}
-
-.lab-entry-note {
-  margin: 0.5rem 0 0;
-  max-width: 52ch;
-  font-size: 0.9375rem;
-  line-height: 1.55;
-  color: var(--env-ink-muted);
-}
-
-.lab-entry-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-  padding-top: 0.5rem;
-}
-
-.lab-more {
-  margin: 2.5rem 0 0;
-  font-size: 0.9375rem;
-  color: var(--env-ink-muted);
-}
-
-/* ==================================================================
-   INSTRUMENT STRIP
-
-   Real build facts, resolved at build time. Nothing here counts up.
-   ================================================================== */
-
-.instrument {
-  max-width: 78rem;
-  margin: 0 auto;
-  padding: 1.25rem var(--gutter) 2.5rem;
-  border-top: 1px solid var(--env-rule);
-}
-
-.instrument dl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem 2.5rem;
-  margin: 0;
-}
-
-.instrument dt {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.5625rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-  opacity: 0.7;
-  margin-bottom: 0.2rem;
-}
-
-.instrument dd {
-  margin: 0;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-  color: var(--env-ink-muted);
-}
-
-@media (max-width: 640px) {
-  .lab-entry {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .lab-entry-meta {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
-    padding-top: 0;
-  }
 }
 
 /* ==================================================================

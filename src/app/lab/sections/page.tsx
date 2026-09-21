@@ -1,6 +1,7 @@
 import { Cursor } from '@/components/motion/Cursor';
 import { Contact } from '@/components/sections/Contact';
 import { Currently } from '@/components/sections/Currently';
+import { Manifesto } from '@/components/sections/Manifesto';
 import { Position } from '@/components/sections/Position';
 import { Practice } from '@/components/sections/Practice';
 import { Work } from '@/components/sections/Work';
@@ -19,6 +20,7 @@ export default function SectionsLabPage() {
     <>
       <Cursor />
       <main className="descent">
+        <Manifesto />
         <Position />
         <Work />
         <Practice />

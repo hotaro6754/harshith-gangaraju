@@ -25,9 +25,12 @@ export function Currently() {
         </h2>
       </div>
 
+      {/* Not three equal columns. Equal weight is no hierarchy, and a row of
+          identical lists is one of the most recognisable generated layouts
+          there is — so "Building" leads and the other two sit beside it. */}
       <div className="currently-grid">
         {COLUMNS.map((column, i) => (
-          <Reveal key={column.key} delay={i * 0.06}>
+          <Reveal key={column.key} delay={i * 0.06} className="currently-column" data-lead={i === 0}>
             <h3 className="currently-title">{column.title}</h3>
             <ul className="currently-list">
               {column.items.map((item) => (
