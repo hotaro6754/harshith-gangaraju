@@ -11,7 +11,7 @@ export const PROFILE = {
   name: 'Harshith Gangaraju',
   short: 'Harshith',
   github: 'hotaro6754',
-  email: 'ceo@qyverix.in',
+  email: 'cto@qyverix.in',
   /** Broad on purpose. Precise location is not portfolio content. */
   location: 'Visakhapatnam, Andhra Pradesh',
   /** The one-line position. Everything else on the site is evidence for it. */

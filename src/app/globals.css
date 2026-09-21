@@ -737,111 +737,6 @@ body {
   flex: 0 0 auto;
 }
 
-/* ==================================================================
-   SOUNDING LINE
-
-   The environment control. Grab, resist, detent, release.
-   ================================================================== */
-
-.sounding {
-  position: absolute;
-  z-index: 5;
-  top: 50%;
-  right: calc(var(--gutter) * 0.6);
-  translate: 0 -50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.sounding-track {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  height: 260px;
-  width: 1px;
-  background: var(--env-rule);
-}
-
-.sounding-mark {
-  width: 7px;
-  height: 1px;
-  background: var(--env-ink);
-  opacity: 0.28;
-  transition: opacity var(--dur-micro) var(--ease-out);
-}
-
-.sounding-mark[data-reached="true"] {
-  opacity: 0.72;
-}
-
-.sounding-knob {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  margin-left: -14px;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  cursor: grab;
-  touch-action: none;
-  display: grid;
-  place-items: center;
-}
-
-.sounding-knob:active {
-  cursor: grabbing;
-}
-
-.sounding-knob-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--env-ink);
-  box-shadow: 0 0 0 4px color-mix(in oklab, var(--env-sky) 70%, transparent);
-  transition: scale var(--dur-micro) var(--ease-out);
-}
-
-.sounding-knob:hover .sounding-knob-dot,
-.sounding-knob:focus-visible .sounding-knob-dot {
-  scale: 1.25;
-}
-
-.sounding-label {
-  margin: 0;
-  max-width: 6rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-align: center;
-  color: var(--env-ink-muted);
-}
-
-/* Coarse pointers get the same control without the drag: the marks stay,
-   the travel does not. */
-@media (pointer: coarse) {
-  .sounding-track {
-    height: 168px;
-  }
-}
-
-@media (max-width: 640px) {
-  .sounding {
-    right: 0.5rem;
-  }
-
-  .sounding-label {
-    display: none;
-  }
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -1281,258 +1176,263 @@ body {
 }
 
 /* ==================================================================
-   02 — WORK
+   02 — SELECTED WORK
 
-   The lead project carries real weight; the rest are an index. That
-   difference in scale is the section's hierarchy.
+   A pinned sequence on wide screens with motion allowed; a stacked list
+   everywhere else. The list is the default and the sequence is opted into
+   by `data-mode="sequence"`, which only the GSAP branch sets — so reduced
+   motion, phones and no-JS all get readable content without trying.
    ================================================================== */
 
-.featured {
-  display: block;
-  padding-bottom: clamp(3rem, 8vh, 5rem);
-  margin-bottom: clamp(2rem, 5vh, 3.5rem);
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.featured-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-}
-
-.featured-index,
-.featured-depth,
-.featured-meta {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-}
-
-.featured-name {
-  margin: 0 0 1.25rem;
-  font-family: var(--font-display), serif;
-  font-size: clamp(3rem, 10vw, 8rem);
-  font-weight: 400;
-  line-height: 0.95;
-  letter-spacing: -0.025em;
-  color: var(--env-ink);
-}
-
-.featured-name a {
-  border-bottom: 0;
-}
-
-.featured-summary {
-  margin: 0 0 clamp(2rem, 5vh, 3rem);
-  max-width: 40ch;
-  font-size: clamp(1.125rem, 2vw, 1.5rem);
-  line-height: 1.45;
-  color: var(--env-ink);
-}
-
-/* Asymmetric on purpose: the argument gets the wider measure, the stack
-   sits beside it as reference. */
-.featured-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: clamp(1.5rem, 5vw, 4rem);
-  margin-bottom: clamp(2rem, 5vh, 3rem);
-}
-
-.featured-premise {
-  margin: 0;
-  max-width: 50ch;
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--env-ink-muted);
-}
-
-.featured-stack {
-  margin: 0;
-  display: grid;
-  gap: 0.6rem;
-  align-content: start;
-}
-
-.featured-stack > div {
-  display: grid;
-  grid-template-columns: 8rem 1fr;
-  gap: 1rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.featured-stack dt {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-  padding-top: 0.15rem;
-}
-
-.featured-stack dd {
-  margin: 0;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--env-ink);
-}
-
-.featured-foot {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.75rem 1.5rem;
-}
-
-.featured-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  font-size: 0.9375rem;
-}
-
-.featured-cta {
-  color: var(--env-ink);
-}
-
-@media (max-width: 860px) {
-  .featured-body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .featured-stack > div {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.25rem;
-  }
-}
-
-/* ==================================================================
-   02 — WORK INDEX
-   ================================================================== */
-
-.work-list {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.work-entry {
-  padding: clamp(2rem, 5vh, 3.25rem) 0;
+.projects {
+  position: relative;
   border-top: 1px solid var(--env-rule);
-  transition: opacity var(--dur-element) var(--ease-out);
 }
 
-.work-entry:last-child {
-  border-bottom: 1px solid var(--env-rule);
+.projects-pin {
+  position: relative;
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: clamp(5rem, 12vh, 9rem) var(--gutter) clamp(2rem, 6vh, 4rem);
 }
 
-/* Hovering one entry recedes the others. Emphasis only — everything stays
-   readable, because content hidden behind a hover cannot be read on a phone
-   or skimmed by someone deciding whether to keep reading. */
-.work-list:hover .work-entry:not(:hover) {
-  opacity: 0.42;
-}
-
-.work-entry-head {
+.projects-head {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: baseline;
   column-gap: 1.25rem;
-  margin-bottom: 1rem;
+  margin-bottom: clamp(2.5rem, 7vh, 4.5rem);
 }
 
-.work-entry-index,
-.work-entry-depth,
-.work-entry-meta {
+.projects-counter {
+  margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0.16em;
   color: var(--env-ink-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.work-entry-name {
-  margin: 0;
+.projects-rail {
+  grid-column: 1 / -1;
+  display: block;
+  height: 1px;
+  margin-top: 1.25rem;
+  background: var(--env-rule);
+  overflow: hidden;
+}
+
+.projects-rail-fill {
+  display: block;
+  height: 100%;
+  background: var(--env-ink);
+  opacity: 0.55;
+  transform-origin: 0 50%;
+  transform: scaleX(1);
+}
+
+/* In the stacked list, a counter and a progress rail describe nothing. */
+.projects:not([data-mode='sequence']) .projects-counter,
+.projects:not([data-mode='sequence']) .projects-rail {
+  display: none;
+}
+
+.projects-stage {
+  position: relative;
+  display: grid;
+  gap: clamp(4rem, 12vh, 7rem);
+}
+
+/* ---- A project ---- */
+
+.project-slide {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+}
+
+/* Enormous, outlined, and behind everything: it gives each project a
+   different silhouette in the frame without adding a single image. */
+.project-numeral {
+  position: absolute;
+  z-index: 0;
+  left: -0.04em;
+  bottom: -0.18em;
   font-family: var(--font-display), serif;
-  font-size: clamp(2rem, 5.5vw, 4.25rem);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--env-ink);
+  font-size: clamp(12rem, 30vw, 30rem);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--env-ink) 13%, transparent);
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
 }
 
-.work-entry-summary {
-  margin: 0 0 1.75rem;
-  max-width: 52ch;
-  font-size: clamp(1rem, 1.4vw, 1.1875rem);
-  line-height: 1.55;
-  color: var(--env-ink);
+.projects:not([data-mode='sequence']) .project-numeral {
+  display: none;
 }
 
-.work-entry-detail {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  margin-bottom: 1.75rem;
+.project-text {
+  position: relative;
+  z-index: 1;
 }
 
-.work-entry-premise {
-  margin: 0;
-  max-width: 48ch;
-  font-size: 0.9375rem;
-  line-height: 1.62;
-  color: var(--env-ink-muted);
-}
-
-.work-entry-stack {
-  margin: 0;
+.project-meta {
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.work-entry-layer {
-  display: grid;
-  grid-template-columns: 7.5rem 1fr;
-  gap: 1rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--env-rule);
-}
-
-.work-entry-layer dt {
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0 0 1.25rem;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.625rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
-  padding-top: 0.15rem;
 }
 
-.work-entry-layer dd {
-  margin: 0;
-  font-size: 0.8125rem;
+.project-name {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-display), serif;
+  font-size: clamp(3.25rem, 8.6vw, 9rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.028em;
+  color: var(--env-ink);
+}
+
+/* One mask for the whole name, not one per letter: per-letter clips shave
+   the serif overhangs. The padding makes room for descenders — Qyverix has
+   one — and the negative margin gives the space straight back. */
+.project-name-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+  white-space: nowrap;
+}
+
+.project-char {
+  display: inline-block;
+  will-change: transform;
+}
+
+.project-summary {
+  margin: 0 0 1.75rem;
+  max-width: 36ch;
+  font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
   line-height: 1.5;
   color: var(--env-ink);
 }
 
-.work-entry-foot {
+.project-links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
   gap: 0.75rem 1.5rem;
+  margin: 0;
+  font-size: 0.9375rem;
 }
 
-.work-entry-links {
+.project-cta {
+  color: var(--env-ink);
+}
+
+.project-visual {
+  position: relative;
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+.project-diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 68svh;
+  overflow: visible;
+}
+
+/* ---- Sequence mode ---- */
+
+.projects[data-mode='sequence'] .projects-pin {
   display: flex;
-  gap: 1.25rem;
+  flex-direction: column;
+  height: 100svh;
+  max-width: none;
+  padding-top: clamp(4.5rem, 10vh, 6.5rem);
+  padding-bottom: clamp(1.5rem, 4vh, 2.5rem);
+  overflow: hidden;
+}
+
+.projects[data-mode='sequence'] .projects-head {
+  width: 100%;
+  max-width: 88rem;
+  margin: 0 auto clamp(1rem, 3vh, 2rem);
+}
+
+.projects[data-mode='sequence'] .projects-stage {
+  display: block;
+  flex: 1;
+  width: 100%;
+  max-width: 88rem;
+  margin: 0 auto;
+}
+
+.projects[data-mode='sequence'] .project-slide {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- Index ---- */
+
+.projects-index {
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vh, 4rem) var(--gutter) clamp(5rem, 12vh, 8rem);
+  display: grid;
+}
+
+.projects-index a {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--env-rule);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+.projects-index a:first-child {
+  border-top: 1px solid var(--env-rule);
+}
+
+.projects-index-name {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.375rem, 2.6vw, 2rem);
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--env-ink);
+  transition: transform var(--dur-element) var(--ease-out);
+}
+
+.projects-index a:hover .projects-index-name,
+.projects-index a:focus-visible .projects-index-name {
+  transform: translateX(0.5rem);
+}
+
+@media (max-width: 860px) {
+  .project-slide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-name-mask {
+    white-space: normal;
+  }
 }
 
 /* ==================================================================
@@ -1734,47 +1634,13 @@ body {
    ================================================================== */
 
 @media (max-width: 860px) {
-  .position-body,
-  .work-entry-detail {
+  .position-body {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .position-diagram {
     max-width: 30rem;
   }
-}
-
-@media (max-width: 560px) {
-  .work-entry-head {
-    grid-template-columns: auto 1fr;
-    row-gap: 0.35rem;
-  }
-
-  .work-entry-depth {
-    grid-column: 2;
-  }
-
-  .work-entry-layer {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.25rem;
-  }
-}
-
-.lab-outro {
-  display: grid;
-  place-items: center;
-  min-height: 70svh;
-  padding: var(--gutter);
-  background: var(--env-sky);
-  color: var(--env-ink-muted);
-  font-size: 0.9375rem;
-  text-align: center;
-  border-top: 1px solid var(--env-rule);
-}
-
-.lab-outro p {
-  max-width: 34ch;
-  margin: 0;
 }
 
 /* ==================================================================

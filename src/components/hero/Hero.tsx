@@ -325,7 +325,7 @@ export function Hero() {
       {/* The threshold. Announced only as the descent ends, so crossing out
           of the hero is a deliberate moment rather than the scene running out. */}
       <p className="hero-threshold" data-hero-threshold aria-hidden="true">
-        Selected work
+        How I work
       </p>
     </div>
   );
