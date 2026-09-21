@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og';
 
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
 /**
  * The share card: the site's night, a ridge line, and the name.
  *
@@ -7,21 +10,26 @@ import { ImageResponse } from 'next/og';
  * recruiter's Slack, a WhatsApp forward), so the card carries the same
  * identity as the page instead of a generic screenshot.
  *
- * The serif and the mono are fetched from Google Fonts at build time,
- * subset to the characters on the card. If that fails the card still
- * renders in the default face rather than failing the build.
+ * Fonts are read from the repo, not fetched. The first version pulled them
+ * from Google Fonts at build time, and on a build machine without outbound
+ * network the fetch failed, an empty font list reached the renderer, and it
+ * crashed the whole build ("Cannot read properties of undefined (reading
+ * 'split')"). A card must never be able to fail a deploy, so: local files,
+ * and if even those are unreadable, no `fonts` option at all, which leaves
+ * the renderer its built-in default.
  */
+
+// Note: never write `fontFamily: undefined` in a style below. The renderer
+// calls .split() on any fontFamily key it finds, so an undefined value
+// crashes the build; the key has to be absent instead.
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
-async function loadFont(family: string, text: string): Promise<ArrayBuffer | null> {
+const FONT_DIR = join(process.cwd(), 'src', 'assets', 'fonts');
+
+async function loadFont(file: string): Promise<Buffer | null> {
   try {
-    const css = await fetch(
-      `https://fonts.googleapis.com/css2?family=${family}&text=${encodeURIComponent(text)}`,
-    ).then((r) => r.text());
-    const url = css.match(/src: url\((.+?)\) format/)?.[1];
-    if (!url) return null;
-    return await fetch(url).then((r) => r.arrayBuffer());
+    return await readFile(join(FONT_DIR, file));
   } catch {
     return null;
   }
@@ -35,9 +43,14 @@ const RIDGE_FAR =
 
 export async function ogCard({ title, kicker, line }: { title: string; kicker: string; line: string }) {
   const [serif, mono] = await Promise.all([
-    loadFont('Instrument+Serif', `${title}${line}`),
-    loadFont('IBM+Plex+Mono', kicker.toUpperCase()),
+    loadFont('InstrumentSerif-Regular.ttf'),
+    loadFont('IBMPlexMono-Regular.ttf'),
   ]);
+
+  const fonts = [
+    ...(serif ? [{ name: 'Instrument Serif', data: serif, style: 'normal' as const, weight: 400 as const }] : []),
+    ...(mono ? [{ name: 'IBM Plex Mono', data: mono, style: 'normal' as const, weight: 400 as const }] : []),
+  ];
 
   return new ImageResponse(
     (
@@ -74,7 +87,7 @@ export async function ogCard({ title, kicker, line }: { title: string; kicker: s
             letterSpacing: 5,
             textTransform: 'uppercase',
             color: '#f0a868',
-            fontFamily: mono ? 'IBM Plex Mono' : undefined,
+            ...(mono ? { fontFamily: 'IBM Plex Mono' } : {}),
           }}
         >
           {kicker}
@@ -87,12 +100,12 @@ export async function ogCard({ title, kicker, line }: { title: string; kicker: s
               fontSize: title.length > 14 ? 120 : 150,
               lineHeight: 0.9,
               letterSpacing: -4,
-              fontFamily: serif ? 'Instrument Serif' : undefined,
+              ...(serif ? { fontFamily: 'Instrument Serif' } : {}),
             }}
           >
             {title}
           </div>
-          <div style={{ display: 'flex', fontSize: 30, maxWidth: 900, color: '#bec1c8', fontFamily: serif ? 'Instrument Serif' : undefined }}>
+          <div style={{ display: 'flex', fontSize: 30, maxWidth: 900, color: '#bec1c8', ...(serif ? { fontFamily: 'Instrument Serif' } : {}) }}>
             {line}
           </div>
         </div>
@@ -100,10 +113,9 @@ export async function ogCard({ title, kicker, line }: { title: string; kicker: s
     ),
     {
       ...OG_SIZE,
-      fonts: [
-        ...(serif ? [{ name: 'Instrument Serif', data: serif, style: 'normal' as const, weight: 400 as const }] : []),
-        ...(mono ? [{ name: 'IBM Plex Mono', data: mono, style: 'normal' as const, weight: 400 as const }] : []),
-      ],
+      // Omitted, not empty, when nothing loaded: an empty array replaces
+      // the renderer's default font with nothing.
+      ...(fonts.length ? { fonts } : {}),
     },
   );
 }
