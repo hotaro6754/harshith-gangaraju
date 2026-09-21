@@ -2,188 +2,201 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { ParticleField } from './ParticleField';
-
 /**
- * The opening frame: a system coming online inside the Moonlit world.
+ * The opening: a box loader with a segmented bar, after the Skiper 15
+ * reference. That component is Pro-licensed, so none of its code is used —
+ * this is a from-scratch build of the same visual pattern: a small window
+ * with a label, two indicator dots, ten blocks that fill one at a time, a
+ * percentage, and an upward slide to exit.
  *
- * The idea borrowed from the reference is a contained field that is
- * initialising — a boundary with something alive inside it. What is
- * deliberately *not* borrowed is how that reference behaves: it runs on a
- * hardcoded three-second timer and displays a percentage that counts to 100
- * while nothing is actually loading. Both are a tax on the visitor dressed as
- * craft.
+ * It runs for roughly six seconds, by design, so it is seen rather than
+ * glimpsed. Three things keep that from becoming a trap:
  *
- * So this reports two things that are genuinely true or not yet true — has
- * the display face arrived, has the scene painted a frame — and leaves when
- * they are. On a warm cache that is a few hundred milliseconds.
- *
- * It shares the hero's palette, typeface, easing and ink colour, because the
- * point is continuity: the same world, before and after. The background is
- * the environment's own sky, so the fade resolves into the hero rather than
- * cutting to it.
+ * - It cannot reach 100% before the page is genuinely ready (display face
+ *   loaded, a frame painted). The pacing is authored; completion is not.
+ * - It plays once per session. Coming back from a case study does not replay
+ *   it.
+ * - Escape or a click skips straight to the end.
  */
 
 const SESSION_KEY = 'aizen:opened';
-/** Long enough that the reveal reads as a transition, not a flash. */
-const MIN_VISIBLE_MS = 620;
-/** Hard ceiling. Nothing may hold the site behind this overlay for longer. */
-const FAILSAFE_MS = 2200;
-/** The dispersal runs while the overlay fades; they finish together. */
-const EXIT_MS = 760;
+const BLOCKS = 10;
 
-interface Step {
-  id: string;
-  index: string;
-  label: string;
-}
+/**
+ * Delay before each of the first nine blocks, in ms. Deliberately uneven —
+ * a bar that advances at a perfectly constant rate reads as a timer, one
+ * that hesitates and catches up reads as work being done. Sums to 5000.
+ */
+const STEPS = [480, 620, 420, 820, 360, 660, 520, 600, 520];
+/** Pause before the final block lands, once the page is ready. */
+const FINAL_BLOCK_MS = 450;
+/** How long 100% holds before the box leaves. */
+const HOLD_MS = 350;
+/** The exit slide. */
+const EXIT_MS = 900;
+/** Hard ceiling on waiting for readiness signals. */
+const READY_FAILSAFE_MS = 2200;
 
-const STEPS: Step[] = [
-  { id: 'type', index: '01', label: 'Typefaces' },
-  { id: 'scene', index: '02', label: 'Environment' },
-];
+type Phase = 'loading' | 'leaving' | 'done';
 
 export function Preloader() {
-  const [done, setDone] = useState(false);
-  const [leaving, setLeaving] = useState(false);
-  const [ready, setReady] = useState<Record<string, boolean>>({});
-  // Both written in an effect, never during render: `Date.now` is impure, and
-  // a ref initialised during render would be too.
-  const startedAt = useRef<number | null>(null);
-  const instant = useRef(false);
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [ready, setReady] = useState(false);
+  const skipped = useRef(false);
 
+  // ---- Start: readiness signals and the authored pacing ----------------
   useEffect(() => {
-    startedAt.current = Date.now();
     let cancelled = false;
-
-    const mark = (id: string) => {
-      if (!cancelled) setReady((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
-    };
+    const timers: number[] = [];
 
     let seen = false;
     try {
       seen = window.sessionStorage.getItem(SESSION_KEY) === '1';
     } catch {
-      // Private mode or blocked storage. Showing the opening again is a
-      // perfectly acceptable failure.
+      // Private mode or blocked storage: showing it again is harmless.
     }
 
     if (seen) {
-      // Already opened this session. That is just another external fact, so
-      // it is reported through the same channel as the rest — asynchronously,
-      // never synchronously from the effect body — and skips the floor.
-      instant.current = true;
       queueMicrotask(() => {
-        for (const step of STEPS) mark(step.id);
+        if (!cancelled) setPhase('done');
       });
       return () => {
         cancelled = true;
       };
     }
 
-    // Real signal: the display face is what the hero is composed in, so its
-    // arrival genuinely gates the first frame being correct.
-    const fonts = document.fonts?.ready ?? Promise.resolve();
-    fonts.then(() => mark('type'));
+    const markReady = () => {
+      if (!cancelled) setReady(true);
+    };
 
-    // Real signal: two animation frames means the scene has been through
-    // layout and paint at least once.
-    requestAnimationFrame(() => requestAnimationFrame(() => mark('scene')));
+    // Real signals. The display face gates the hero looking right, and two
+    // frames means the scene has been through layout and paint.
+    let fontsReady = false;
+    let painted = false;
+    const check = () => {
+      if (fontsReady && painted) markReady();
+    };
+    (document.fonts?.ready ?? Promise.resolve()).then(() => {
+      fontsReady = true;
+      check();
+    });
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        painted = true;
+        check();
+      }),
+    );
+    // A background tab never delivers a frame, so readiness cannot be
+    // allowed to wait on one forever.
+    timers.push(window.setTimeout(markReady, READY_FAILSAFE_MS));
 
-    // Failsafe, and not a workaround — a page opened in a background tab has
-    // `requestAnimationFrame` suspended indefinitely. Without a ceiling the
-    // opening would wait for a paint that never comes and hold the whole site
-    // behind it. An overlay that leaves early is a far smaller bug than one
-    // that can never leave.
-    const escape = window.setTimeout(() => {
-      for (const step of STEPS) mark(step.id);
-    }, FAILSAFE_MS);
+    // Nine blocks on the authored schedule; the tenth waits for readiness.
+    let elapsed = 0;
+    STEPS.forEach((delay, i) => {
+      elapsed += delay;
+      timers.push(
+        window.setTimeout(() => {
+          if (!cancelled && !skipped.current) setProgress((i + 1) * 10);
+        }, elapsed),
+      );
+    });
 
     return () => {
       cancelled = true;
-      window.clearTimeout(escape);
+      timers.forEach((t) => window.clearTimeout(t));
     };
   }, []);
 
-  const allReady = STEPS.every((step) => ready[step.id]);
-
+  // ---- Finish: last block, hold, slide away ----------------------------
   useEffect(() => {
-    if (!allReady || leaving) return;
+    if (phase === 'done') return;
 
-    const elapsed = Date.now() - (startedAt.current ?? Date.now());
-    const wait = instant.current ? 0 : Math.max(0, MIN_VISIBLE_MS - elapsed);
+    let timer: number | undefined;
 
-    // The exit is two beats: the boundary opens and the field disperses,
-    // then the overlay itself resolves into the hero behind it.
-    const begin = window.setTimeout(() => setLeaving(true), wait);
-    const finish = window.setTimeout(() => {
-      setDone(true);
-      try {
-        window.sessionStorage.setItem(SESSION_KEY, '1');
-      } catch {
-        // Not being able to remember is harmless.
-      }
-    }, wait + (instant.current ? 0 : EXIT_MS));
+    if (phase === 'loading' && progress === 90 && ready) {
+      timer = window.setTimeout(() => setProgress(100), FINAL_BLOCK_MS);
+    } else if (phase === 'loading' && progress === 100) {
+      timer = window.setTimeout(() => setPhase('leaving'), skipped.current ? 120 : HOLD_MS);
+    } else if (phase === 'leaving') {
+      timer = window.setTimeout(() => {
+        setPhase('done');
+        try {
+          window.sessionStorage.setItem(SESSION_KEY, '1');
+        } catch {
+          // Not being able to remember is harmless.
+        }
+      }, EXIT_MS);
+    }
 
-    return () => {
-      window.clearTimeout(begin);
-      window.clearTimeout(finish);
+    return () => window.clearTimeout(timer);
+  }, [phase, progress, ready]);
+
+  // ---- Skip ------------------------------------------------------------
+  useEffect(() => {
+    if (phase !== 'loading') return;
+
+    const skip = () => {
+      skipped.current = true;
+      setReady(true);
+      setProgress(100);
     };
-  }, [allReady, leaving]);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') skip();
+    };
 
-  // Locks scrolling while the opening is up, so the hero timeline cannot be
-  // scrubbed past before anyone has seen it.
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', skip);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointerdown', skip);
+    };
+  }, [phase]);
+
+  // ---- Scroll lock -----------------------------------------------------
+  // Holds the page still while the loader is up, so the hero's pinned
+  // timeline cannot be scrubbed past before anyone has seen it.
   useEffect(() => {
-    if (done) return;
+    if (phase === 'done') return;
     const previous = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
     return () => {
       document.documentElement.style.overflow = previous;
     };
-  }, [done]);
+  }, [phase]);
+
+  if (phase === 'done') return null;
+
+  const filled = Math.round(progress / 10);
 
   return (
-    <div
-      className="preloader"
-      data-done={done}
-      data-leaving={leaving}
-      aria-hidden={done}
-      role="status"
-      aria-live="polite"
-    >
-      {/* A boundary, not a card: four corner marks and a hairline, closer to
-          an instrument's viewfinder than to a panel. */}
-      <div className="preloader-frame">
-        <ParticleField
-          className="preloader-field"
-          active={!done}
-          dispersing={leaving}
-        />
+    <div className="preloader" data-phase={phase}>
+      <div
+        className="loader-box"
+        role="progressbar"
+        aria-label="Loading"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress}
+      >
+        <div className="loader-head">
+          <span className="loader-label">Loader</span>
+          <span className="loader-dots" aria-hidden="true">
+            <i />
+            <i />
+          </span>
+        </div>
 
-        <span className="preloader-corner" data-corner="tl" aria-hidden="true" />
-        <span className="preloader-corner" data-corner="tr" aria-hidden="true" />
-        <span className="preloader-corner" data-corner="bl" aria-hidden="true" />
-        <span className="preloader-corner" data-corner="br" aria-hidden="true" />
+        <div className="loader-track" aria-hidden="true">
+          {Array.from({ length: BLOCKS }, (_, i) => (
+            <span key={i} className="loader-block" data-on={i < filled} />
+          ))}
+        </div>
 
-        <div className="preloader-inner">
-          <p className="preloader-name">
-            <span>Harshith</span>
-            <span>Gangaraju</span>
-          </p>
-
-          <ul className="preloader-steps">
-            {STEPS.map((step) => (
-              <li key={step.id} data-ready={Boolean(ready[step.id])}>
-                <span className="preloader-step-index">{step.index}</span>
-                <span className="preloader-step-label">{step.label}</span>
-                <span className="preloader-step-rule" aria-hidden="true" />
-              </li>
-            ))}
-          </ul>
+        <div className="loader-foot">
+          <span className="loader-pct">{progress}%</span>
         </div>
       </div>
-
-      <p className="preloader-disciplines">Cybersecurity · AI · Infrastructure</p>
     </div>
   );
 }

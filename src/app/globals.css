@@ -314,175 +314,128 @@ body {
 /* ==================================================================
    PRELOADER
 
-   The Moonlit world before it is revealed. Same palette, same typeface,
-   same easing as the hero — the background is the environment's own sky,
-   so the exit resolves into the hero rather than cutting to it.
+   A box loader with a segmented bar — the Skiper 15 pattern, built from
+   scratch. Structure matches the reference; colour is Moonlit rather than
+   the reference's light grey, so the opening does not flash a light screen
+   in front of a dark hero.
    ================================================================== */
 
 .preloader {
   position: fixed;
   z-index: 100;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(1.75rem, 5vh, 3rem);
-  /* Moonlit's own sky, with the moon's glow already faintly present where
-     the hero will put it — so the light does not arrive, it was always
-     there. */
-  background:
-    radial-gradient(
-      44rem 30rem at 76% 29%,
-      rgba(190, 193, 200, 0.09),
-      transparent 70%
-    ),
-    #101828;
-  transition:
-    opacity 760ms var(--ease-in-out),
-    visibility 0s linear 760ms;
-}
-
-.preloader[data-done='true'] {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-/* ---- Boundary ---- */
-
-.preloader-frame {
-  position: relative;
-  width: min(30rem, 78vw);
-  height: min(19rem, 42vh);
   display: grid;
   place-items: center;
-  /* Opens toward the edges as the field disperses, so the boundary releases
-     the world rather than the overlay simply switching off. */
-  transition:
-    transform 760ms var(--ease-in-out),
-    opacity 760ms var(--ease-in-out);
+  padding: var(--gutter);
+  background:
+    radial-gradient(44rem 30rem at 76% 29%, rgba(190, 193, 200, 0.07), transparent 70%),
+    #101828;
+  /* The exit: the whole screen lifts away and the hero is underneath. */
+  transition: transform 900ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  will-change: transform;
 }
 
-.preloader[data-leaving='true'] .preloader-frame {
-  transform: scale(1.18);
-  opacity: 0;
+.preloader[data-phase='leaving'] {
+  transform: translateY(-100%);
 }
 
-.preloader-field {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+.loader-box {
+  width: min(25rem, 86vw);
+  padding: 0.875rem 1rem 0.9rem;
+  border-radius: 14px;
+  background: #172033;
+  border: 1px solid rgba(190, 193, 200, 0.1);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.6);
 }
 
-/* Corner marks only. A full border would read as a card; four ticks read as
-   an instrument. */
-.preloader-corner {
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 1px solid rgba(190, 193, 200, 0.28);
-}
-
-.preloader-corner[data-corner='tl'] { top: 0; left: 0; border-right: 0; border-bottom: 0; }
-.preloader-corner[data-corner='tr'] { top: 0; right: 0; border-left: 0; border-bottom: 0; }
-.preloader-corner[data-corner='bl'] { bottom: 0; left: 0; border-right: 0; border-top: 0; }
-.preloader-corner[data-corner='br'] { bottom: 0; right: 0; border-left: 0; border-top: 0; }
-
-/* ---- Content ---- */
-
-.preloader-inner {
-  position: relative;
+.loader-head {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: clamp(1.5rem, 4vh, 2.25rem);
-  text-align: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
-.preloader-name {
-  display: flex;
-  gap: 0.6em;
-  margin: 0;
+.loader-label {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(190, 193, 200, 0.92);
+  color: rgba(190, 193, 200, 0.78);
 }
 
-.preloader-steps {
+.loader-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.loader-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(190, 193, 200, 0.18);
+}
+
+/* Ten discrete blocks, not a smooth fill. Each one snaps on — that stepping
+   is the whole character of the pattern. */
+.loader-track {
   display: grid;
-  gap: 0.6rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  min-width: min(15rem, 62vw);
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  padding: 6px;
+  border-radius: 9px;
+  background: rgba(190, 193, 200, 0.05);
 }
 
-.preloader-steps li {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.75rem;
+.loader-block {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  background: rgba(190, 193, 200, 0.1);
+}
+
+.loader-block[data-on='true'] {
+  background: #bec1c8;
+  animation: loader-block-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes loader-block-in {
+  from {
+    transform: scale(0.55);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.loader-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.875rem;
+}
+
+.loader-pct {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.5625rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(190, 193, 200, 0.34);
-  transition: color 320ms var(--ease-out);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(190, 193, 200, 0.85);
 }
 
-.preloader-steps li[data-ready='true'] {
-  color: rgba(190, 193, 200, 0.88);
-}
-
-.preloader-step-label {
-  text-align: left;
-}
-
-/* The rule fills only when its step is genuinely complete. Nothing here
-   animates on a timer pretending to be progress. */
-.preloader-step-rule {
-  width: 2.5rem;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform 420ms var(--ease-out);
-}
-
-.preloader-steps li[data-ready='true'] .preloader-step-rule {
-  transform: scaleX(1);
-}
-
-.preloader-disciplines {
-  margin: 0;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(190, 193, 200, 0.4);
-  transition: opacity 420ms var(--ease-in-out);
-}
-
-.preloader[data-leaving='true'] .preloader-disciplines {
-  opacity: 0;
-}
-
-/* The field is the one thing here with a running loop, and the component
-   does not start it at all under reduced motion. The rest becomes a fade. */
+/* Reduced motion: same box, same duration — the blocks still fill, since
+   that is information rather than decoration — but no pop and a fade out
+   instead of a slide. */
 @media (prefers-reduced-motion: reduce) {
-  .preloader,
-  .preloader-frame,
-  .preloader-step-rule,
-  .preloader-disciplines {
-    transition-duration: 120ms;
+  .loader-block[data-on='true'] {
+    animation: none;
   }
 
-  .preloader[data-leaving='true'] .preloader-frame {
+  .preloader {
+    transition: opacity 300ms linear;
+  }
+
+  .preloader[data-phase='leaving'] {
     transform: none;
+    opacity: 0;
   }
 }
 
