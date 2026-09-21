@@ -124,6 +124,11 @@
      under WCAG AA's 4.5:1 for body text. */
   --env-ink-muted: color-mix(in oklab, var(--env-ink) 72%, var(--env-sky));
   --env-rule: color-mix(in oklab, var(--env-ink) 22%, transparent);
+  /* The one accent. Everything else on the site is moonlight on navy, and
+     next to the sites it competes with that read as grey. This is a signal
+     lamp: warm against the cold palette, and used only where something is
+     live, active, or breaking. Never for decoration, never for body text. */
+  --signal: #f0a868;
 }
 
 @theme inline {
@@ -163,12 +168,12 @@ body {
 }
 
 ::selection {
-  background: var(--env-ink);
+  background: var(--signal);
   color: var(--env-sky);
 }
 
 :focus-visible {
-  outline: 2px solid var(--env-ink);
+  outline: 2px solid var(--signal);
   outline-offset: 3px;
 }
 
@@ -843,7 +848,18 @@ html[data-opened] .preloader {
   overflow: clip;
 }
 
+.manifesto-dawn {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 62%, var(--env-ink) 0%, color-mix(in oklab, var(--env-ink) 88%, var(--env-sky)) 70%);
+  clip-path: circle(0% at 50% 62%);
+  pointer-events: none;
+}
+
 .manifesto-lines {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 82rem;
   margin: 0 auto;
@@ -882,6 +898,21 @@ html[data-opened] .preloader {
    them be selected made every copy-paste of those lines come out twice. */
 [aria-hidden='true'] {
   user-select: none;
+}
+
+/* Lenis: the page is scrolled by script, so native smooth scrolling must
+   not fight it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
 }
 
 /* ==================================================================
@@ -971,11 +1002,26 @@ html[data-opened] .preloader {
 .section-title {
   margin: 0;
   font-family: var(--font-display), serif;
-  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-size: clamp(3.25rem, 11vw, 11rem);
   font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -0.035em;
+  /* Outlined, at the scale of architecture rather than of a label: the
+     same drawn-line language as the hero's threshold band and the project
+     numerals. It marks where a chapter starts without outranking the
+     statement that follows it, which stays solid. */
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--env-ink) 55%, transparent);
+}
+
+/* In the pinned work frame the heading shares the screen with a project,
+   so there it goes back to a solid, working size. */
+.projects[data-mode='sequence'] .section-title {
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
   line-height: 1;
   letter-spacing: -0.015em;
   color: var(--env-ink);
+  -webkit-text-stroke: 0;
 }
 
 /* Prose, not metadata, so it is set in the text face. Mono is reserved for
@@ -2919,4 +2965,48 @@ html[data-opened] .preloader {
     animation-duration: 0s !important;
     animation-delay: 0s !important;
   }
+}
+
+/* ==================================================================
+   SIGNAL
+
+   Where the accent is allowed, in one place so its budget stays visible:
+   things that are live (the clock, what is being built now), things that
+   are active (the current rung, the current project, focus), and things
+   that carry a signal (the pulse on a wire, the centre of the
+   intersection). "Break it." flashes it too, from the manifesto timeline.
+   ================================================================== */
+
+.local-time-dot,
+.ledger-list li[data-live='true']::before {
+  background: var(--signal);
+}
+
+.diagram-pulse {
+  fill: var(--signal);
+  opacity: 0.95;
+}
+
+.intersection-dot {
+  fill: var(--signal);
+}
+
+.intersection-centre {
+  fill: var(--signal);
+}
+
+.rung[data-active='true'] .rung-index {
+  color: var(--signal);
+}
+
+.projects-counter [data-counter] {
+  color: var(--signal);
+}
+
+.projects-rail-fill {
+  background: var(--signal);
+}
+
+.fracture-band {
+  color: var(--signal);
 }

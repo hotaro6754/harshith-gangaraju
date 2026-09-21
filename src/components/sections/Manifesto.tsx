@@ -92,6 +92,15 @@ export function Manifesto() {
               rotation: (rand() - 0.5) * 140,
             }));
 
+          // Palette values read from the page, not hard-coded, so the scene
+          // stays in its environment. GSAP cannot interpolate var() itself.
+          const css = getComputedStyle(section);
+          const signal = css.getPropertyValue('--signal').trim() || '#f0a868';
+          const ink = css.getPropertyValue('--env-ink').trim() || '#bec1c8';
+          const night = css.getPropertyValue('--env-sky').trim() || '#101828';
+          const dawn = section.querySelector<HTMLElement>('[data-dawn]');
+          const everyChar = gsap.utils.toArray<HTMLElement>('[data-char]', section);
+
           const unread = 0.14;
           gsap.set([...chars(useIt), ...chars(understand), ...chars(breakIt)], { opacity: unread });
 
@@ -103,7 +112,7 @@ export function Manifesto() {
             scrollTrigger: {
               trigger: section,
               start: wide ? 'top top' : 'top 70%',
-              end: wide ? '+=240%' : 'bottom 40%',
+              end: wide ? '+=320%' : 'bottom 30%',
               pin: wide,
               scrub: 0.8,
               anticipatePin: 1,
@@ -125,7 +134,8 @@ export function Manifesto() {
               x: (i) => breakScatter[i].x,
               y: (i) => breakScatter[i].y,
               rotation: (i) => breakScatter[i].rotation,
-              opacity: 0.18,
+              opacity: 0.4,
+              color: signal,
               duration: 0.7,
               ease: 'power2.in',
               stagger: { each: 0.02, from: 'center' },
@@ -148,7 +158,28 @@ export function Manifesto() {
             '-=0.3',
           );
 
-          timeline.to({}, { duration: 0.35 });
+          // Light. As the last line assembles, a disc rises from the horizon
+          // like the moon and keeps growing until moonlight floods the frame and the type inverts to night ink: the one
+          // moment on the site where the palette turns over. Then night
+          // returns before the section lets go, so the page below is where
+          // it was.
+          if (dawn) {
+            timeline
+              .fromTo(
+                dawn,
+                { clipPath: 'circle(0% at 50% 62%)', opacity: 1 },
+                { clipPath: 'circle(78% at 50% 62%)', ease: 'power2.inOut', duration: 0.8 },
+                '<0.15',
+              )
+              .to(everyChar, { color: night, duration: 0.5, ease: 'power1.inOut' }, '<0.2')
+              .to({}, { duration: 0.45 })
+              // Out as a fade, not by shrinking the disc again: a closing
+              // circle cuts through the type on its way down.
+              .to(dawn, { opacity: 0, ease: 'power1.in', duration: 0.5 })
+              .to(everyChar, { color: ink, duration: 0.4, ease: 'power1.inOut' }, '<');
+          }
+
+          timeline.to({}, { duration: 0.2 });
         },
       );
 
@@ -166,6 +197,10 @@ export function Manifesto() {
       <h2 className="sr-only" id="manifesto-title">
         How I work
       </h2>
+
+      {/* The light that floods in with the last line. Behind the type,
+          clipped to nothing until the timeline opens it. */}
+      <div className="manifesto-dawn" data-dawn aria-hidden="true" />
 
       <div className="manifesto-lines">
         {LINES.map((line) => (

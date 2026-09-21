@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { IBM_Plex_Mono, Instrument_Serif, Schibsted_Grotesk } from 'next/font/google';
 
 import { Preloader } from '@/components/chrome/Preloader';
+import { SmoothScroll } from '@/components/motion/SmoothScroll';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 
 import './globals.css';
@@ -80,6 +81,7 @@ export default function RootLayout({
           <style>{`.preloader{display:none}`}</style>
         </noscript>
         <Preloader />
+        <SmoothScroll />
         {children}
       </body>
     </html>

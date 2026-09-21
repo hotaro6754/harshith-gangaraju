@@ -213,12 +213,16 @@ export function Work() {
               scrub: 0.7,
               anticipatePin: 1,
               invalidateOnRefresh: true,
-              // Rest on a project rather than halfway between two.
+              // Rest on a project rather than halfway between two, and always
+              // the next one in the direction of travel. Plain 'labels' snaps
+              // to the nearest, and with smoothed scrolling one slow wheel
+              // notch never gets past halfway, so every notch was pulled back
+              // to the same project and the sequence could not be advanced.
               snap: {
-                snapTo: 'labels',
-                duration: { min: 0.25, max: 0.7 },
+                snapTo: 'labelsDirectional',
+                duration: { min: 0.3, max: 0.8 },
                 ease: 'power2.inOut',
-                delay: 0.06,
+                delay: 0.12,
               },
               onUpdate: () => {
                 // The counter flips at the moment the next name starts to
