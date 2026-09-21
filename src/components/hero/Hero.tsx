@@ -277,7 +277,11 @@ export function Hero() {
             most common hero pattern there is; as credits along the bottom
             edge they read like the title card of a film instead. */}
         <div className="hero-composition">
-          <h1 className="hero-headline" data-hero-headline>
+          {/* The headline is the voice, not the page's subject. The page is
+              about a person, so the h1 is his name (below, in the credits):
+              the same visible text, now carrying the weight search engines
+              and screen readers give the main heading. */}
+          <p className="hero-headline" data-hero-headline>
             {HEADLINE.map((line) => (
               <span className="hero-line-mask" data-line key={line}>
                 <span className="hero-line" data-line-inner>
@@ -285,13 +289,13 @@ export function Hero() {
                 </span>
               </span>
             ))}
-          </h1>
+          </p>
         </div>
 
         <div className="hero-credits">
-          <p className="hero-name">
+          <h1 className="hero-name">
             <span>Harshith</span> <span>Gangaraju</span>
-          </p>
+          </h1>
 
           {/* A real link, not a decorative cue: keyboard reachable, and it
               goes where it says. The drawn line is the flourish. */}

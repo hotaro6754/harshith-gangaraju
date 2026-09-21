@@ -10,7 +10,7 @@ import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { DEPTH_LABEL, PROJECTS, PROJECT_BY_SLUG } from '@/content/projects';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
-import { PERSON_REF, SITE_URL, identityGraph } from '@/lib/site';
+import { BUILT_AT, PERSON_REF, SITE_URL, identityGraph } from '@/lib/site';
 
 import CyberOs from './bodies/cyber-os.mdx';
 import Ideaspace from './bodies/ideaspace.mdx';
@@ -46,20 +46,21 @@ export async function generateMetadata({
   const project = PROJECT_BY_SLUG[slug];
   if (!project) return {};
 
-  const title = `${project.name}, a case study`;
+  // "CYBER-OS: threat detection system · Harshith Gangaraju" (template adds the name).
+  const title = `${project.name}: ${project.kind}`;
+  const description = `${project.summary} A case study by Harshith Gangaraju, CTO of Qyverix.`;
   return {
-    // The layout's template appends the name: "CYBER-OS, a case study · Harshith Gangaraju".
     title,
-    description: project.summary,
+    description,
     alternates: { canonical: `/work/${project.slug}` },
     openGraph: {
       type: 'article',
       url: `/work/${project.slug}`,
       title: `${title} · Harshith Gangaraju`,
-      description: project.summary,
+      description,
       authors: ['Harshith Gangaraju'],
     },
-    twitter: { card: 'summary_large_image', title: `${title} · Harshith Gangaraju`, description: project.summary },
+    twitter: { card: 'summary_large_image', title: `${title} · Harshith Gangaraju`, description },
   };
 }
 
@@ -94,6 +95,7 @@ export default async function CaseStudyPage({
               description: project.summary,
               url: `${SITE_URL}/work/${project.slug}`,
               author: PERSON_REF,
+              dateModified: BUILT_AT,
               about: project.stack.flatMap((layer) => layer.tech).slice(0, 12),
               isPartOf: { '@id': `${SITE_URL}/#website` },
             },

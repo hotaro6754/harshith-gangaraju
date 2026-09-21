@@ -8,7 +8,13 @@ import { EXPERIMENTS, LAB_INTRO } from '@/content/lab';
 export const metadata = {
   title: 'Lab',
   alternates: { canonical: '/lab' },
-  description: 'Experiments, unfinished things, and the reference sheets behind this site.',
+  description:
+    'Experiments by Harshith Gangaraju, CTO of Qyverix: unfinished things, earlier sites, and the reference sheets behind this portfolio.',
+  openGraph: {
+    url: '/lab',
+    title: 'Lab · Harshith Gangaraju',
+    description: 'Experiments, earlier sites, and the reference sheets behind this portfolio.',
+  },
 };
 
 /**
@@ -28,9 +34,9 @@ export default function LabPage() {
       <main className="descent" id="top">
         <section className="section section-lab" aria-labelledby="lab-title">
           <div className="section-head">
-            <h2 className="section-title" id="lab-title">
+            <h1 className="section-title" id="lab-title">
               Experiments
-            </h2>
+            </h1>
             <p className="section-note">{LAB_INTRO}</p>
           </div>
 
@@ -45,12 +51,12 @@ export default function LabPage() {
               return (
                 <Reveal as="li" key={item.name} delay={i * 0.04} className="lab-entry">
                   <div className="lab-entry-main">
-                    <h3 className="lab-entry-name">
+                    <h2 className="lab-entry-name">
                       <Title {...titleProps} data-cursor={internal ? 'Open' : 'Code'}>
                         {item.name}
                         <span aria-hidden="true">{internal ? ' →' : ' ↗'}</span>
                       </Title>
-                    </h3>
+                    </h2>
                     {item.note && <p className="lab-entry-note">{item.note}</p>}
                   </div>
 

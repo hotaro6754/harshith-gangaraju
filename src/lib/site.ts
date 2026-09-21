@@ -23,9 +23,11 @@ export const ROLE = 'CTO';
 /** How people actually search for him: surname-first (common in Andhra Pradesh), and his two handles (GitHub hotaro6754, email harshith6754). */
 export const ALTERNATE_NAMES = ['Gangaraju Harshith', 'Harshith', 'hotaro6754', 'harshith6754'] as const;
 
-export const SITE_TITLE = `${PROFILE.name} · ${ROLE}, ${COMPANY.name}`;
+/** 50-60 characters: long enough to say what he does, short enough not to be cut. */
+export const SITE_TITLE = `${PROFILE.name}, ${ROLE} of ${COMPANY.name} · Cybersecurity & AI`;
 
-export const SITE_DESCRIPTION = `${PROFILE.name}, ${ROLE} of ${COMPANY.name}, builds software systems at the intersection of cybersecurity, AI and infrastructure. Case studies on CYBER-OS, Qyverix and Ideaspace. Based in Visakhapatnam, India.`;
+/** Under 160 characters so Google shows it whole. */
+export const SITE_DESCRIPTION = `${PROFILE.name}, ${ROLE} of ${COMPANY.name}, builds software across cybersecurity, AI and infrastructure. Case studies: CYBER-OS, Ideaspace, Qyverix.`;
 
 export const KNOWS_ABOUT = [
   'Cybersecurity',
@@ -81,5 +83,8 @@ export function identityGraph() {
     },
   ];
 }
+
+/** When this build was made: the honest 'last updated' for every page it serves. */
+export const BUILT_AT = new Date().toISOString();
 
 export const PERSON_REF = { '@id': PERSON_ID } as const;

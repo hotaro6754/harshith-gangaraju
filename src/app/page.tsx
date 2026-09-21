@@ -11,7 +11,7 @@ import { Position } from '@/components/sections/Position';
 import { Practice } from '@/components/sections/Practice';
 import { Work } from '@/components/sections/Work';
 import { PROJECTS } from '@/content/projects';
-import { PERSON_REF, SITE_DESCRIPTION, SITE_TITLE, SITE_URL, identityGraph } from '@/lib/site';
+import { BUILT_AT, PERSON_REF, SITE_DESCRIPTION, SITE_TITLE, SITE_URL, identityGraph } from '@/lib/site';
 
 /** Direction of travel between the index and a case study. See globals.css. */
 const DESCENT = { descend: 'descend', ascend: 'ascend', default: 'none' };
@@ -44,6 +44,7 @@ export default function Home() {
               name: SITE_TITLE,
               description: SITE_DESCRIPTION,
               mainEntity: PERSON_REF,
+              dateModified: BUILT_AT,
               hasPart: PROJECTS.map((project) => ({
                 '@type': 'TechArticle',
                 headline: project.name,

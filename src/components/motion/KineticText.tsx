@@ -44,6 +44,20 @@ type KineticTextProps<T extends ElementType> = {
   marks?: Readonly<Record<string, string>>;
 } & Omit<ComponentPropsWithoutRef<T>, 'children' | 'as'>;
 
+/**
+ * A CSS colour expression as the rgb() string the browser resolves it to.
+ * The palette's muted ink is a color-mix(), which GSAP cannot interpolate;
+ * the computed value of a probe element is always plain rgb.
+ */
+function resolveColor(host: HTMLElement, expression: string) {
+  const probe = document.createElement('span');
+  probe.style.color = expression;
+  host.appendChild(probe);
+  const value = getComputedStyle(probe).color;
+  probe.remove();
+  return value;
+}
+
 /** If the entry never registers, show the words anyway after this long. */
 const FAILSAFE_MS = 2400;
 
@@ -75,8 +89,14 @@ export function KineticText<T extends ElementType = 'p'>({
         let trigger: ScrollTrigger | undefined;
 
         if (mode === 'fill') {
-          gsap.set(words, { opacity: 0.16 });
-          const fill = gsap.to(words, { opacity: 1, ease: 'none', stagger: 0.1, paused: true });
+          // Unread words sit at the muted ink, not at a low opacity. The
+          // first version faded them to 16%, which failed WCAG contrast for
+          // anyone reading ahead of the scroll; the muted ink passes 4.5:1,
+          // so the reveal is still visible and nothing is ever illegible.
+          const muted = resolveColor(el, 'var(--env-ink-muted)');
+          const ink = resolveColor(el, 'var(--env-ink)');
+          gsap.set(words, { color: muted });
+          const fill = gsap.to(words, { color: ink, ease: 'none', stagger: 0.1, paused: true });
 
           // The scrubbed trigger is built one screen before it is needed,
           // by which point every pin above it already exists and has been

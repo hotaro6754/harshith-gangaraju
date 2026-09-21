@@ -48,6 +48,8 @@ export interface Project {
   depth: Depth;
   /** One line. No adjectives that cannot be defended. */
   summary: string;
+  /** What it is in three or four plain words, for search result titles. */
+  kind: string;
   /** The problem the system exists to solve, in the author's own terms. */
   premise: string;
   stack: StackLayer[];
@@ -58,6 +60,7 @@ export interface Project {
 export const PROJECTS: Project[] = [
   {
     slug: 'qyverix',
+    kind: 'web studio infrastructure',
     name: 'Qyverix',
     role: 'CTO',
     period: 'Since 2026',
@@ -77,6 +80,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'cyber-os',
+    kind: 'threat detection system',
     name: 'CYBER-OS',
     role: 'Design & build',
     period: 'Since 2026',
@@ -99,6 +103,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'ideaspace',
+    kind: 'campus innovation platform',
     name: 'Ideaspace',
     role: 'Design & build',
     period: 'Since 2026',
@@ -134,6 +139,7 @@ const projectSchema = z.object({
   period: z.string().min(1),
   depth: z.enum(['near', 'mid', 'far']),
   summary: z.string().min(40, 'a one-liner that short is not saying anything'),
+  kind: z.string().min(8).max(32, 'keep it short enough for a result title'),
   premise: z.string().min(80, 'the premise is the argument — write it out'),
   stack: z.array(z.object({ layer: z.string().min(1), tech: z.array(z.string().min(1)).min(1) })).min(1),
   links: z
