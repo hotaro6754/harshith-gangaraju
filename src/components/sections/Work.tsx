@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { DiagramNode } from '@/components/case/SystemDiagram';
+import { DiagramList, DiagramNode } from '@/components/case/SystemDiagram';
 import { DIAGRAMS, type DiagramName } from '@/content/diagrams';
 import { DEPTH_LABEL, PROJECTS, type Project } from '@/content/projects';
 import { DIAGRAM_H, DIAGRAM_W, layoutDiagram } from '@/lib/diagram-geometry';
@@ -64,8 +64,8 @@ function ProjectDiagram({ name }: { name: DiagramName }) {
     <svg
       className="project-diagram"
       viewBox={`0 0 ${DIAGRAM_W} ${DIAGRAM_H}`}
-      role="img"
-      aria-label={DIAGRAMS[name].caption}
+      aria-hidden="true"
+      focusable="false"
       data-diagram
     >
       <g className="diagram-edges">
@@ -126,6 +126,7 @@ function ProjectSlide({ project, index }: { project: Project; index: number }) {
 
       <div className="project-visual" data-visual>
         <ProjectDiagram name={project.slug as DiagramName} />
+        <DiagramList name={project.slug as DiagramName} />
       </div>
     </article>
   );
@@ -162,6 +163,10 @@ export function Work() {
           });
 
           // ---- First project: arrives on entry, not on the scrub -------
+          // Only the name's mask and the drawing of the edges are held back
+          // for this. The summary, links and node labels are never hidden
+          // behind the trigger: content that only appears if an observer
+          // fires is content that can fail to appear.
           // Separate one-shot trigger on *different targets* from anything
           // the scrubbed timeline touches — the mask, not the characters —
           // so the two can never fight over one property.
@@ -171,15 +176,14 @@ export function Work() {
           });
           entrance
             .from(q(first, '[data-name-mask]'), { yPercent: 105, duration: 1, ease: 'expo.out' })
-            .from(q(first, '[data-meta]'), { autoAlpha: 0, y: 12, duration: 0.6 }, 0.1)
-            .from(q(first, '[data-copy]'), { autoAlpha: 0, y: 18, duration: 0.7 }, 0.2)
+            .from(q(first, '[data-meta]'), { y: 12, duration: 0.6 }, 0.1)
+            .from(q(first, '[data-copy]'), { y: 18, duration: 0.7 }, 0.2)
             .fromTo(
               q(first, '[data-edge]'),
               { drawSVG: '0%' },
               { drawSVG: '100%', duration: 0.9, stagger: 0.06, ease: 'power2.inOut' },
               0.2,
-            )
-            .from(q(first, '[data-node]'), { autoAlpha: 0, duration: 0.4, stagger: 0.04 }, 0.35);
+            );
 
           // ---- The sequence -------------------------------------------
           const TRANSITION = 1; // one unit of scroll per handover
@@ -282,7 +286,6 @@ export function Work() {
     <section className="projects" id="work" ref={root} aria-labelledby="work-title">
       <div className="projects-pin" data-pin>
         <header className="projects-head">
-          <span className="section-index">02</span>
           <h2 className="section-title" id="work-title">
             Selected work
           </h2>

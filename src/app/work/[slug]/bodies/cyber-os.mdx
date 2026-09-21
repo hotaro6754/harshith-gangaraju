@@ -2,7 +2,7 @@
 
 A classifier that says "malicious" and stops is not much use to whoever has to
 act on it. They have to decide something, and "the model said so" is not a
-reason — it is a shrug with a confidence score attached.
+reason. It is a shrug with a confidence score attached.
 
 So the interesting problem in CYBER-OS was never the model. It was everything
 around it: carrying provenance the whole way through, correlating findings that
@@ -15,7 +15,7 @@ The network side observes and does not touch. That rules out a lot of the
 easy answers.
 
 <Decision title="Metadata-only detection" instead="active probing or payload inspection">
-Traffic is unidirectional and read-only — no inline mitigation, no reaching out
+Traffic is unidirectional and read-only: no inline mitigation, no reaching out
 to check whether a host is really what it claims. Everything has to come from
 connection metadata: timing, volume, entropy, who talked to whom and how often.
 
@@ -29,7 +29,7 @@ traffic either.
 <SystemDiagram name="cyber-os" />
 
 Two inlets. Live traffic goes through Zeek and onto a Redpanda bus. Submitted
-content — a URL, an email, an SMS, a QR code — goes to a sandboxed headless
+content (a URL, an email, an SMS, a QR code) goes to a sandboxed headless
 browser that renders it in isolation and records what it actually did, not what
 it claimed it would do.
 
@@ -39,14 +39,14 @@ Both converge on detection, and detection converges on evidence.
 
 Four layers, because no single one of them is trustworthy alone:
 
-- **Lexical and heuristic** — entropy and pattern work, for DGA-style domains
+- **Lexical and heuristic.** Entropy and pattern work, for DGA-style domains
   and homoglyph tricks.
-- **Tabular ML** — XGBoost over Zeek telemetry, for the behavioural things:
+- **Tabular ML.** XGBoost over Zeek telemetry, for the behavioural things:
   beaconing that is too regular to be human, exfiltration shaped wrong for its
   protocol.
-- **Anomaly** — Isolation Forest, for the traffic that is not like the rest
+- **Anomaly.** Isolation Forest, for the traffic that is not like the rest
   without matching anything known.
-- **Threat intelligence** — reputation, for what is already known.
+- **Threat intelligence.** Reputation, for what is already known.
 
 The point of stacking them is disagreement. When three layers agree the case is
 easy; when they disagree, that is the case worth a person's time.
@@ -92,7 +92,7 @@ evidence of how well, and those are different claims.
 
 ## What I would change
 
-The correlation engine grew feature by feature and it shows — it does too much
+The correlation engine grew feature by feature and it shows: it does too much
 in one place. If I started again I would define the entity graph first and make
 correlation a consumer of it, rather than the thing that builds it as a side
 effect.

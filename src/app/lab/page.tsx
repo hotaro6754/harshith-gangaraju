@@ -7,7 +7,7 @@ import { Reveal } from '@/components/motion/Reveal';
 import { EXPERIMENTS, LAB_INTRO } from '@/content/lab';
 
 export const metadata = {
-  title: 'Lab — Harshith Gangaraju',
+  title: 'Lab · Harshith Gangaraju',
   description: 'Experiments, unfinished things, and the reference sheets behind this site.',
 };
 
@@ -28,7 +28,6 @@ export default function LabPage() {
       <main className="descent" id="top">
         <section className="section section-lab" aria-labelledby="lab-title">
           <div className="section-head">
-            <span className="section-index">Lab</span>
             <h2 className="section-title" id="lab-title">
               Experiments
             </h2>

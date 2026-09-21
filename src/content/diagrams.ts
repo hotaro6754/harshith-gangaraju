@@ -33,7 +33,7 @@ export interface SystemDiagramData {
 export const DIAGRAMS = {
   'cyber-os': {
     caption:
-      'Two inlets — live traffic and submitted content — converge on one evidence layer, so a case can cite where every part of it came from.',
+      'Two inlets, live traffic and submitted content, converge on one evidence layer, so a case can cite where every part of it came from.',
     nodes: [
       { id: 'traffic', label: 'Network traffic', detail: 'unidirectional, read-only', x: 0.18, y: 0.07 },
       { id: 'content', label: 'URL · Email · SMS · QR', detail: 'submitted for analysis', x: 0.76, y: 0.07 },

@@ -25,7 +25,7 @@ export const PROFILE = {
 
 export const EDUCATION = {
   institution: 'Lendi Institute of Engineering & Technology',
-  degree: 'B.Tech, Computer Science — Cybersecurity',
+  degree: 'B.Tech, Computer Science (Cybersecurity)',
   graduation: '2029',
   year: 'Second year',
 } as const;
@@ -60,6 +60,8 @@ export const PRINCIPLES = [
  * often enough to prove the site is maintained rather than published once.
  */
 export const CURRENTLY = {
+  /** Set by hand whenever this block is edited. Shown on the page. */
+  updated: 'September 2026',
   building: [
     { label: 'CYBER-OS', note: 'Correlating detections into one auditable case' },
     { label: 'Qyverix Cloud', note: 'The infrastructure layer I wanted to use myself' },
@@ -74,7 +76,7 @@ export const CURRENTLY = {
   exploring: [
     { label: 'Offensive security', note: 'Breaking the assumptions everyone else made' },
     { label: 'Detection engineering', note: 'Noise into one useful signal' },
-    { label: 'AI on real systems', note: 'Code, traffic, identity — not chat' },
+    { label: 'AI on real systems', note: 'Code, traffic and identity. Not chat.' },
   ],
 } as const;
 

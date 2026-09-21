@@ -50,7 +50,7 @@ export function Contact() {
 
       <footer className="colophon">
         <p>
-          Built with Next.js, GSAP and Motion. The landscape is generated SVG — no
+          Built with Next.js, GSAP and Motion. The landscape is generated SVG: no
           images, no WebGL. Colour presets derive from the{' '}
           <a href="https://feralui.dev/gradients" target="_blank" rel="noreferrer noopener">
             FeralUI Gradient Builder

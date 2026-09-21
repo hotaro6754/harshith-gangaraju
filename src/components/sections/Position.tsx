@@ -14,7 +14,6 @@ export function Position() {
   return (
     <section className="section section-position" id="position" aria-labelledby="position-title">
       <div className="section-head">
-        <span className="section-index">01</span>
         <h2 className="section-title" id="position-title">
           Position
         </h2>
@@ -30,9 +29,8 @@ export function Position() {
             <p className="position-detail">
               Mostly I end up where those three meet. A detection pipeline is useless
               without the infrastructure to run it, and infrastructure nobody can
-              operate is not finished. I like the whole path — from a problem, to a
-              thing that stays up, to finding out what it does when someone leans on
-              it.
+              operate is not finished. I like the whole path: the problem, the thing
+              that stays up, and finding out what it does when someone leans on it.
             </p>
           </Reveal>
 

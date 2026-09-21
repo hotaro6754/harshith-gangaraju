@@ -55,6 +55,9 @@ const ALLOWED_UNSTYLED = new Set<string>([
   'nav-home',
   'hero-cta-label',
   'project-copy',
+  'now-object',
+  'ledger-group',
+  'roles-block',
 ]);
 
 function usedClasses(): Map<string, string> {

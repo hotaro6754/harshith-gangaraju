@@ -20,7 +20,6 @@ export default function ScenesPage() {
             style={{ position: 'relative', height: '100svh', overflow: 'hidden' }}
           >
             <EnvironmentScene id={id} />
-            <div className="grain" />
 
             <div
               style={{

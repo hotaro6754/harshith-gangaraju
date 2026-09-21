@@ -120,7 +120,9 @@
 
 /* Muted ink is derived, never authored — it always belongs to its palette. */
 [data-env] {
-  --env-ink-muted: color-mix(in oklab, var(--env-ink) 62%, var(--env-sky));
+  /* 72%, not 62%: at 62% the muted ink measured 4.2:1 on the Moonlit sky,
+     under WCAG AA's 4.5:1 for body text. */
+  --env-ink-muted: color-mix(in oklab, var(--env-ink) 72%, var(--env-sky));
   --env-rule: color-mix(in oklab, var(--env-ink) 22%, transparent);
 }
 
@@ -140,6 +142,13 @@
 
 html {
   background: var(--env-sky);
+  /* Reserve the scrollbar's space permanently. The preloader locks scrolling
+     with overflow: hidden, which otherwise removes the scrollbar; GSAP then
+     measured the hero's pin at the wider, scrollbar-less width, and when
+     the scrollbar returned the pinned hero was 15px too wide and the whole
+     page scrolled sideways. With the gutter reserved, locking scroll can
+     never change the page width. */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -480,7 +489,7 @@ body {
 .hero-name {
   display: flex;
   gap: 0.6em;
-  margin: 0 0 clamp(1.75rem, 5vh, 3rem);
+  margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.32em;
@@ -519,7 +528,7 @@ body {
 }
 
 .hero-disciplines {
-  margin: clamp(1.5rem, 4vh, 2.5rem) 0 0;
+  margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.24em;
@@ -527,12 +536,52 @@ body {
   color: var(--env-ink-muted);
 }
 
+/* ---- Credits ----
+   Name bottom-left, the way in at the centre, disciplines bottom-right:
+   the headline owns the frame and everything else is a credit. */
+
+.hero-credits {
+  grid-row: 3;
+  align-self: end;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 1.5rem;
+}
+
+.hero-name {
+  justify-self: start;
+  text-align: left;
+}
+
+.hero-disciplines {
+  justify-self: end;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .hero-credits {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 1rem;
+  }
+
+  .hero-cta {
+    order: -1;
+  }
+
+  .hero-name,
+  .hero-disciplines {
+    justify-self: center;
+    text-align: center;
+  }
+}
+
 /* ---- CTA ---- */
 
 .hero-cta {
   pointer-events: auto;
-  grid-row: 3;
-  align-self: end;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -638,7 +687,7 @@ body {
 
 .depth-marker-note {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.5625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.5;
@@ -760,21 +809,13 @@ body {
   border-top: 1px solid var(--env-rule);
 }
 
+/* No chapter numbers beside the headings. A page that numbers its own
+   sections is leaning on scaffolding instead of on its layout; the order
+   is already obvious from reading down. */
 .section-head {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: baseline;
-  column-gap: 1.25rem;
   margin-bottom: clamp(2.5rem, 6vh, 4.5rem);
 }
 
-.section-index {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-}
 
 .section-title {
   margin: 0;
@@ -786,10 +827,9 @@ body {
   color: var(--env-ink);
 }
 
-/* Prose, not metadata — so it is set in the text face. Mono is reserved for
+/* Prose, not metadata, so it is set in the text face. Mono is reserved for
    things that are genuinely labels and values. */
 .section-note {
-  grid-column: 2;
   margin: 0.75rem 0 0;
   max-width: 62ch;
   font-size: 0.9375rem;
@@ -968,7 +1008,7 @@ body {
 
 .position-facts dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -990,53 +1030,102 @@ body {
 
 /* ==================================================================
    03 — PRACTICE
+
+   A ladder where type size is rank. Correctness is the largest word on the
+   rung, experimentation the smallest, so the priority reads before a word
+   does. The scroll-linked highlight only shifts emphasis; every rung and
+   note stays legible at AA regardless of which one is active.
    ================================================================== */
 
-.practice-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: start;
-}
-
-.principles {
-  margin: 0;
+.ladder {
+  margin: 0 0 clamp(4rem, 12vh, 7rem);
   padding: 0;
   list-style: none;
-  counter-reset: principle;
+  border-top: 1px solid var(--env-rule);
 }
 
-.principle {
+.rung {
+  /* 0 at the top of the ladder, 6 at the bottom. */
+  --size: calc(clamp(2.5rem, 5.8vw, 5.5rem) * (1 - var(--rung) * 0.085));
   display: grid;
-  grid-template-columns: 2.25rem 9rem 1fr;
+  grid-template-columns: 3rem minmax(0, auto) minmax(0, 1fr);
   align-items: baseline;
-  gap: 1rem;
-  padding: 0.875rem 0;
+  column-gap: clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(0.6rem, 1.4vh, 1rem) 0;
   border-bottom: 1px solid var(--env-rule);
+  cursor: default;
 }
 
-.principle-rank {
+.rung-index {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.12em;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
   color: var(--env-ink-muted);
+  transition: color var(--dur-element) var(--ease-out);
 }
 
-.principle-name {
+.rung-name {
   font-family: var(--font-display), serif;
-  font-size: 1.25rem;
+  font-size: var(--size);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--env-ink-muted);
+  transition:
+    color var(--dur-element) var(--ease-out),
+    transform var(--dur-section) var(--ease-out);
+  transform-origin: 0 50%;
+}
+
+.rung-note {
+  justify-self: end;
+  max-width: 30ch;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  text-align: right;
+  color: var(--env-ink-muted);
+  opacity: 0.55;
+  transition:
+    opacity var(--dur-element) var(--ease-out),
+    transform var(--dur-element) var(--ease-out);
+  transform: translateX(0.75rem);
+}
+
+/* The rung you have reached. Emphasis only: ink instead of muted ink, and a
+   small step to the right, like a finger moving down a list. */
+.rung[data-active='true'] .rung-index,
+.rung[data-active='true'] .rung-name {
   color: var(--env-ink);
 }
 
-.principle-note {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: var(--env-ink-muted);
+.rung[data-active='true'] .rung-name {
+  transform: translateX(0.5rem);
 }
 
-.practice-side-title,
-.currently-title {
-  margin: 0 0 1rem;
+.rung[data-active='true'] .rung-note {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Reduced motion: the whole ladder at full ink, nothing moves. */
+.ladder[data-static='true'] .rung-name,
+.ladder[data-static='true'] .rung-note {
+  transform: none;
+  opacity: 1;
+}
+
+.practice-quote {
+  max-width: 22ch;
+  margin: 0 0 clamp(4rem, 12vh, 7rem) auto;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.75rem, 4.2vw, 3.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.018em;
+  text-align: right;
+  color: var(--env-ink);
+}
+
+.roles-title {
+  margin: 0 0 1.25rem;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
   font-weight: 400;
@@ -1046,86 +1135,205 @@ body {
 }
 
 .roles {
-  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
+  margin: 0 0 2.5rem;
   padding: 0;
   list-style: none;
-  display: grid;
-  gap: 1.25rem;
 }
 
 .roles li {
   display: grid;
-  gap: 0.15rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--env-rule);
+  gap: 0.3rem;
+  align-content: start;
+  padding-top: 1rem;
+  border-top: 1px solid var(--env-rule);
 }
 
 .role-title {
   font-family: var(--font-display), serif;
-  font-size: 1.25rem;
+  font-size: clamp(1.5rem, 2.6vw, 2.25rem);
+  line-height: 1.05;
   color: var(--env-ink);
 }
 
 .role-org {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
 }
 
 .role-note {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   line-height: 1.5;
   color: var(--env-ink-muted);
 }
 
+.roles-quote {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.125rem, 1.9vw, 1.5rem);
+  font-style: italic;
+  color: var(--env-ink);
+}
+
+@media (max-width: 860px) {
+  .rung {
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    row-gap: 0.35rem;
+  }
+
+  .rung-note {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+    transform: none;
+    opacity: 1;
+  }
+
+  .roles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* ==================================================================
    04 — CURRENTLY
+
+   A sentence that is actually moving, over a ledger that carries the same
+   content for everyone the sentence is hidden from.
    ================================================================== */
 
-.currently-grid {
+.now {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.28em;
+  margin: 0 0 clamp(3.5rem, 10vh, 6rem);
+  font-family: var(--font-display), serif;
+  font-size: clamp(2.5rem, 7.4vw, 7rem);
+  line-height: 1.1;
+  letter-spacing: -0.024em;
+  color: var(--env-ink);
+}
+
+.now-lead {
+  color: var(--env-ink-muted);
+}
+
+/* Each changing word gets its own clip so it rolls rather than fades. The
+   padding makes room for descenders, and the margin gives it back. */
+.now-line {
+  display: inline-flex;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.now-slot {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.now-verb {
+  font-style: italic;
+}
+
+.ledger {
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(1.75rem, 5vw, 3.5rem);
 }
 
-.currently-column[data-lead='true'] .currently-label {
-  font-family: var(--font-display), serif;
-  font-size: 1.375rem;
-  line-height: 1.2;
+.ledger-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
 }
 
-@media (max-width: 860px) {
-  .currently-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.currently-list {
+.ledger-list {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
-.currently-list li {
+.ledger-list li {
+  position: relative;
   display: grid;
   gap: 0.2rem;
-  padding-bottom: 1rem;
+  padding: 0 0 0.9rem 1.1rem;
   border-bottom: 1px solid var(--env-rule);
 }
 
-.currently-label {
+/* A marker on every item; the ones genuinely in progress pulse. Honest
+   because it only ever marks the "building" list, which is exactly what is
+   being worked on. */
+.ledger-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--env-ink-muted);
+}
+
+.ledger-list li[data-live='true']::before {
+  background: var(--env-ink);
+  animation: ledger-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ledger-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+.ledger-label {
   font-size: 1rem;
   color: var(--env-ink);
 }
 
-.currently-note {
-  font-size: 0.8125rem;
+.ledger-note {
+  font-size: 0.875rem;
   line-height: 1.5;
   color: var(--env-ink-muted);
+}
+
+.ledger-updated {
+  margin: 2rem 0 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--env-ink-muted);
+}
+
+@media (max-width: 860px) {
+  .ledger {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ledger-list li[data-live='true']::before {
+    animation: none;
+  }
 }
 
 /* ==================================================================
@@ -1151,7 +1359,7 @@ body {
 
 .projects-head {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   align-items: baseline;
   column-gap: 1.25rem;
   margin-bottom: clamp(2.5rem, 7vh, 4.5rem);
@@ -1239,7 +1447,7 @@ body {
   gap: 0.5rem 1.5rem;
   margin: 0 0 1.25rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1353,7 +1561,7 @@ body {
   padding: 1rem 0;
   border-bottom: 1px solid var(--env-rule);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1504,7 +1712,7 @@ body {
 
 .case-meta dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1544,6 +1752,11 @@ body {
 
 .case-body p {
   margin: 0 0 1.25rem;
+  max-width: 68ch;
+}
+
+.case-body li {
+  max-width: 66ch;
 }
 
 .case-body strong {
@@ -1646,7 +1859,7 @@ body {
 
 .decision-instead span {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.75;
@@ -1720,20 +1933,113 @@ body {
 
 .diagram-node-label {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   fill: var(--env-ink-muted);
 }
 
 .diagram-node-detail {
-  font-size: 10px;
+  font-size: 12.5px;
   fill: var(--env-ink-muted);
-  opacity: 0.7;
 }
 
 [data-accent='true'] .diagram-node-label {
   fill: var(--env-ink);
+}
+
+/* ---- Diagram as a list ---- */
+
+/* On wider screens the list is for assistive tech only; the SVG is what is
+   seen. Clipped, not display:none, so screen readers still get it. */
+.diagram-list {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  list-style: none;
+}
+
+@media (max-width: 640px) {
+  .system-diagram svg,
+  .project-diagram {
+    display: none;
+  }
+
+  .diagram-list {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 1.5rem 0 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    display: grid;
+    gap: 0;
+  }
+
+  .diagram-list-row {
+    position: relative;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0 0 1.5rem 1.25rem;
+  }
+
+  /* The downward line the SVG edges would have drawn. */
+  .diagram-list-row::before {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    top: 0.5rem;
+    bottom: 0;
+    width: 1px;
+    background: var(--env-rule);
+  }
+
+  .diagram-list-row:last-child::before {
+    display: none;
+  }
+
+  .diagram-list-row::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.35rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1px solid var(--env-ink-muted);
+    background: var(--env-sky);
+  }
+
+  .diagram-list-node {
+    display: grid;
+    gap: 0.2rem;
+  }
+
+  .diagram-list-label {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--env-ink-muted);
+  }
+
+  .diagram-list-node[data-accent='true'] .diagram-list-label {
+    color: var(--env-ink);
+  }
+
+  .diagram-list-detail {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--env-ink-muted);
+  }
 }
 
 /* ---- Case footer ---- */
@@ -1773,7 +2079,7 @@ body {
 
 .case-stack dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1911,11 +2217,10 @@ body {
 
 .instrument dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.5625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
-  opacity: 0.7;
   margin-bottom: 0.2rem;
 }
 
@@ -1960,6 +2265,12 @@ body {
 
 /* ==================================================================
    NAV
+
+   Over the hero: a single Menu button, no bar. The hero is a composition
+   and a bar competes with it, but hiding navigation entirely left phones
+   with no menu for two full screens of scroll.
+   Past the hero: the full bar, which tucks away while reading down and
+   returns on the first scroll up.
    ================================================================== */
 
 .nav {
@@ -1977,31 +2288,31 @@ body {
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  /* Deliberately not backdrop-filter. A fixed, blurred surface sitting over
-     scrolling content is re-composited every frame — including while the bar
-     is still invisible — which is far too much to pay for frosted glass. An
-     opaque bar costs nothing. */
-  background: var(--env-sky);
-  border-bottom: 1px solid var(--env-rule);
-  opacity: 0;
-  translate: 0 -100%;
+  border-bottom: 1px solid transparent;
   transition:
-    opacity var(--dur-element) var(--ease-out),
+    background-color var(--dur-element) var(--ease-out),
+    border-color var(--dur-element) var(--ease-out),
     translate var(--dur-element) var(--ease-out);
 }
 
 .nav[data-past='true'] {
-  opacity: 1;
-  translate: 0 0;
+  /* Opaque rather than frosted: a backdrop blur over scrolling content is
+     re-composited every frame. */
+  background: var(--env-sky);
+  border-bottom-color: var(--env-rule);
 }
 
-/* Never trap a keyboard user behind a scroll position. */
+.nav[data-tucked='true'] {
+  translate: 0 -100%;
+}
+
+/* Never tuck a bar away from a keyboard user who has tabbed into it. */
 .nav:focus-within {
-  opacity: 1;
   translate: 0 0;
 }
 
-.nav a {
+.nav a,
+.nav-toggle {
   color: var(--env-ink-muted);
   text-decoration: none;
   transition: color var(--dur-micro) var(--ease-out);
@@ -2009,8 +2320,15 @@ body {
 
 .nav a:hover,
 .nav a:focus-visible,
-.nav a[data-current='true'] {
+.nav a[data-current='true'],
+.nav-toggle:hover,
+.nav-toggle:focus-visible {
   color: var(--env-ink);
+}
+
+/* Over the hero the name is already in the composition. */
+.nav:not([data-past='true']) .nav-home {
+  visibility: hidden;
 }
 
 .nav-list {
@@ -2019,6 +2337,100 @@ body {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.nav:not([data-past='true']) .nav-list {
+  display: none;
+}
+
+.nav-toggle {
+  /* 44px tall target, the minimum for a thumb. */
+  min-height: 44px;
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.nav[data-past='true'] .nav-toggle {
+  display: none;
+}
+
+/* ---- Menu overlay ---- */
+
+.nav-menu {
+  position: fixed;
+  /* Behind the bar within the nav's stacking context, so Close stays on top. */
+  z-index: -1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3rem;
+  padding: 6rem var(--gutter) var(--gutter);
+  background: var(--env-sky);
+  animation: menu-in 420ms var(--ease-out);
+}
+
+.nav-menu[hidden] {
+  display: none;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.nav-menu-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-menu-list a {
+  font-family: var(--font-display), serif;
+  font-size: clamp(2.5rem, 11vw, 5rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: var(--env-ink);
+}
+
+.nav-menu-list a:hover,
+.nav-menu-list a:focus-visible {
+  color: var(--env-ink);
+  padding-left: 0.5rem;
+}
+
+.nav-menu-foot {
+  margin: 0;
+}
+
+/* Narrow screens: the row of six never fit, so it is always the menu. */
+@media (max-width: 860px) {
+  .nav-list {
+    display: none;
+  }
+
+  .nav[data-past='true'] .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-menu {
+    animation: none;
+  }
 }
 
 /* ==================================================================
@@ -2055,7 +2467,7 @@ body {
 
 .cursor-label {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.5625rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: currentColor;

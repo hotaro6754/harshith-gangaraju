@@ -273,38 +273,38 @@ export function Hero() {
       <DepthMarkers environment={HERO_ENVIRONMENT} />
 
       <div className="hero-content">
-        {/* Centered on purpose. A left-aligned headline with the scene behind
-            it reads as a caption over a picture; centred, it becomes the
-            composed first frame of the site, and the landscape resolves
-            around it rather than beside it. */}
+        {/* The headline stands alone at the centre. The name and disciplines
+            used to sit above it as a small tracked-caps label, which is the
+            most common hero pattern there is; as credits along the bottom
+            edge they read like the title card of a film instead. */}
         <div className="hero-composition">
-        <p className="hero-name">
-          <span>Harshith</span>
-          <span>Gangaraju</span>
-        </p>
-
-        <h1 className="hero-headline" data-hero-headline>
-          {HEADLINE.map((line) => (
-            <span className="hero-line-mask" data-line key={line}>
-              <span className="hero-line" data-line-inner>
-                {line}
+          <h1 className="hero-headline" data-hero-headline>
+            {HEADLINE.map((line) => (
+              <span className="hero-line-mask" data-line key={line}>
+                <span className="hero-line" data-line-inner>
+                  {line}
+                </span>
               </span>
-            </span>
-          ))}
-        </h1>
-
-        <p className="hero-disciplines" data-hero-sub>
-          Cybersecurity · AI · Infrastructure
-        </p>
+            ))}
+          </h1>
         </div>
 
-        {/* A real link, not a decorative cue: it is reachable by keyboard and
-            actually goes where it says. The drawn line is the flourish; the
-            anchor is the affordance. */}
-        <a className="hero-cta" href="#work" data-hero-cta data-cursor="Enter">
-          <span className="hero-cta-label">Enter the work</span>
-          <span className="hero-cta-line" aria-hidden="true" />
-        </a>
+        <div className="hero-credits">
+          <p className="hero-name">
+            <span>Harshith</span> <span>Gangaraju</span>
+          </p>
+
+          {/* A real link, not a decorative cue: keyboard reachable, and it
+              goes where it says. The drawn line is the flourish. */}
+          <a className="hero-cta" href="#work" data-hero-cta data-cursor="Enter">
+            <span className="hero-cta-label">Enter the work</span>
+            <span className="hero-cta-line" aria-hidden="true" />
+          </a>
+
+          <p className="hero-disciplines" data-hero-sub>
+            Cybersecurity · AI · Infrastructure
+          </p>
+        </div>
       </div>
 
       <KineticBand
@@ -319,8 +319,6 @@ export function Hero() {
       {/* Dissolves the scene's floor into the colour the page continues in,
           so the hero resolves into the descent instead of being cropped. */}
       <div className="hero-seam" aria-hidden="true" />
-
-      <div className="grain" />
 
       {/* The threshold. Announced only as the descent ends, so crossing out
           of the hero is a deliberate moment rather than the scene running out. */}

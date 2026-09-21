@@ -11,8 +11,8 @@ import type { SystemDiagramData } from '@/content/diagrams';
 export const DIAGRAM_W = 720;
 export const DIAGRAM_H = 560;
 /** Half-height of a node's knockout plate, in user units. */
-export const NODE_PAD_Y = 17;
-export const NODE_PLATE_W = 184;
+export const NODE_PAD_Y = 21;
+export const NODE_PLATE_W = 224;
 
 export interface PlacedNode {
   id: string;
@@ -63,4 +63,21 @@ export function layoutDiagram(diagram: SystemDiagramData): {
   });
 
   return { nodes, edges };
+}
+
+/**
+ * The same nodes as rows, top to bottom, with nodes that share a height kept
+ * side by side. That is how the diagram reads as a list: parallel inlets stay
+ * parallel, and the flow still runs downward.
+ */
+export function diagramRows(diagram: SystemDiagramData): PlacedNode[][] {
+  const { nodes } = layoutDiagram(diagram);
+  const rows = new Map<number, PlacedNode[]>();
+  for (const node of nodes) {
+    const key = Math.round(node.y);
+    rows.set(key, [...(rows.get(key) ?? []), node]);
+  }
+  return [...rows.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([, row]) => row.sort((a, b) => a.x - b.x));
 }

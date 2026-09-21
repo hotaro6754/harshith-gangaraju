@@ -31,7 +31,7 @@ export const EXPERIMENTS: Experiment[] = [
   {
     name: '3D',
     tech: 'React · Vite · TypeScript',
-    note: 'An interactive scene — walking up to a door and through it.',
+    note: 'An interactive scene: walk up to a door, then through it.',
     href: 'https://github.com/hotaro6754/3D',
     live: { label: 'sahithi-district.vercel.app', href: 'https://sahithi-district.vercel.app' },
   },
@@ -75,4 +75,4 @@ export const EXPERIMENTS: Experiment[] = [
 ];
 
 export const LAB_INTRO =
-  'Things I built to find out something specific. Most are unfinished on purpose — once the question is answered the repository usually stops being interesting, and pretending otherwise would be dishonest.';
+  'Things I built to find out something specific. Most are unfinished on purpose. Once the question is answered the repository usually stops being interesting, and pretending otherwise would be dishonest.';

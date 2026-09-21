@@ -17,7 +17,7 @@ export interface DecisionProps {
 export function Decision({ title, instead, children }: DecisionProps) {
   return (
     <aside className="decision">
-      <h4 className="decision-title">{title}</h4>
+      <h3 className="decision-title">{title}</h3>
       <p className="decision-instead">
         <span>Instead of</span> {instead}
       </p>

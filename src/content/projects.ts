@@ -60,10 +60,10 @@ export const PROJECTS: Project[] = [
     slug: 'qyverix',
     name: 'Qyverix',
     role: 'CTO',
-    period: '2026 —',
+    period: 'Since 2026',
     depth: 'near',
     summary:
-      'A web studio I am technically responsible for — the product, the infrastructure it runs on, and the operations around it.',
+      'A web studio I am technically responsible for: the product, the infrastructure it runs on, and the operations around it.',
     premise:
       'Shipping client work on a deadline is an operations problem long before it is a coding problem. Domains, mail, authentication, roles, backups and logs all have to exist and keep existing, and someone has to own them.',
     stack: [
@@ -79,12 +79,12 @@ export const PROJECTS: Project[] = [
     slug: 'cyber-os',
     name: 'CYBER-OS',
     role: 'Design & build',
-    period: '2026 —',
+    period: 'Since 2026',
     depth: 'mid',
     summary:
       'One detection and investigation system, not a verdict engine: it produces evidence a person can actually audit.',
     premise:
-      'A classifier that says "malicious" and stops is not much use to whoever has to act on it. The harder problem is carrying provenance all the way through — which detector fired, on what input, at what version — and degrading honestly when a component is unavailable rather than inventing a result.',
+      'A classifier that says "malicious" and stops is not much use to whoever has to act on it. The harder problem is carrying provenance all the way through (which detector fired, on what input, at what version) and degrading honestly when a component is unavailable rather than inventing a result.',
     stack: [
       { layer: 'Detection', tech: ['Zeek', 'XGBoost', 'Isolation Forest', 'Entropy & regex heuristics'] },
       { layer: 'Pipeline', tech: ['Redpanda', 'FastAPI', 'Python 3.11'] },
@@ -101,7 +101,7 @@ export const PROJECTS: Project[] = [
     slug: 'ideaspace',
     name: 'Ideaspace',
     role: 'Design & build',
-    period: '2026 —',
+    period: 'Since 2026',
     depth: 'far',
     summary:
       'A campus innovation platform built around proof: ideas are cheap, so the system scores evidence instead.',
