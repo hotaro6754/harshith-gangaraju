@@ -20,8 +20,8 @@ export const COMPANY = {
 
 export const ROLE = 'CTO';
 
-/** How people actually search for him. Surname-first is common in Andhra Pradesh. */
-export const ALTERNATE_NAMES = ['Gangaraju Harshith', 'Harshith', 'hotaro6754'] as const;
+/** How people actually search for him: surname-first (common in Andhra Pradesh), and his two handles (GitHub hotaro6754, email harshith6754). */
+export const ALTERNATE_NAMES = ['Gangaraju Harshith', 'Harshith', 'hotaro6754', 'harshith6754'] as const;
 
 export const SITE_TITLE = `${PROFILE.name} · ${ROLE}, ${COMPANY.name}`;
 
