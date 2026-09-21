@@ -157,7 +157,10 @@ export function Hero() {
             { opacity: 1, x: 0, ease: 'power2.out', stagger: 0.05, duration: 0.14 },
             HANDOVER,
           );
-          timeline.to(markers, { opacity: 0, ease: 'none', duration: 0.08 }, 0.92);
+          // Gone before the threshold band arrives (0.76): the band's outlined
+          // words and the marker labels share the lower third of the frame,
+          // and overlapping they read as a collision rather than as layers.
+          timeline.to(markers, { opacity: 0, x: 10, ease: 'power1.in', duration: 0.06 }, 0.68);
 
           // ---- Headline ------------------------------------------------
           // The lines are authored markup, not a runtime split. SplitText

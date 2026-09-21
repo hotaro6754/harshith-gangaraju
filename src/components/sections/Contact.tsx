@@ -1,15 +1,23 @@
+import { LocalTime } from '@/components/chrome/LocalTime';
+import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
+import { ConvergeText } from '@/components/motion/ConvergeText';
 import { KineticText } from '@/components/motion/KineticText';
 import { Reveal } from '@/components/motion/Reveal';
 import { RollLink } from '@/components/motion/RollLink';
+import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 import { PROFILE } from '@/content/profile';
 
 /**
  * The last frame.
  *
- * Not a form and not a sign-off. The site opened on a statement in his voice
- * and it closes on one, so the whole thing reads as bracketed rather than as
- * running out of sections. The line deliberately answers the headline: the
- * hero says he looks for where things break, this says what that is for.
+ * Not a form and not a sign-off. The site opened inside a landscape and it
+ * closes inside one: the ranges come back up from the bottom of the page, so
+ * the whole thing reads as bracketed rather than as running out of sections.
+ * Everything between was the descent; this is the far side of it.
+ *
+ * The line answers the headline. The hero says he looks for where things
+ * break; this says what that is for, and the last two words assemble out of
+ * depth as you arrive.
  */
 export function Contact() {
   return (
@@ -18,21 +26,34 @@ export function Contact() {
         Contact
       </h2>
 
-      <KineticText
-        className="contact-statement"
-        text={['If you are building something', 'that shouldn’t break,', 'let’s talk.']}
-      />
+      {/* Same seed as the hero, so these are the same mountains seen again,
+          not a second decoration. One blur layer: it is a closing frame, not
+          the showpiece, and it should cost less than the opening. */}
+      <div className="contact-scene" aria-hidden="true">
+        <EnvironmentScene id={HERO_ENVIRONMENT} maxBlurLayers={1} maxRanges={4} />
+      </div>
 
-      <Reveal delay={0.2}>
-        <RollLink
-          className="contact-primary"
-          href={`mailto:${PROFILE.email}`}
-          data-cursor="Mail"
-          label={PROFILE.email}
+      <div className="contact-inner">
+        <KineticText
+          className="contact-lead"
+          text={['If you are building something', 'that shouldn’t break,']}
         />
-      </Reveal>
 
-      <Reveal delay={0.28}>
+        <ConvergeText className="contact-converge" text={'let’s talk.'} />
+
+        <Reveal delay={0.1}>
+          <RollLink
+            className="contact-primary"
+            href={`mailto:${PROFILE.email}`}
+            data-cursor="Mail"
+            label={PROFILE.email}
+          />
+        </Reveal>
+      </div>
+
+      <footer className="site-foot">
+        <span className="site-foot-name">{PROFILE.name}</span>
+
         <ul className="contact-links">
           {PROFILE.links.map((link) => (
             <li key={link.href}>
@@ -46,11 +67,14 @@ export function Contact() {
               />
             </li>
           ))}
-          <li>
-            <span className="contact-location">{PROFILE.location}</span>
-          </li>
         </ul>
-      </Reveal>
+
+        <span className="site-foot-where">
+          {PROFILE.location} · <LocalTime />
+        </span>
+
+        <RollLink className="site-foot-top" href="#top" label="Back to the surface" data-cursor="Up" />
+      </footer>
     </section>
   );
 }

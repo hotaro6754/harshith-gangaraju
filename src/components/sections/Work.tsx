@@ -160,7 +160,7 @@ export function Work() {
           // Everything after the first project starts out of frame.
           slides.slice(1).forEach((slide) => {
             gsap.set(slide, { autoAlpha: 0 });
-            gsap.set(q(slide, '[data-char]'), { yPercent: 115 });
+            gsap.set(q(slide, '[data-char]'), { yPercent: 115, y: 0 });
             gsap.set(q(slide, '[data-edge]'), { drawSVG: '0%' });
             gsap.set(q(slide, '[data-node], [data-port]'), { autoAlpha: 0 });
           });
@@ -241,18 +241,18 @@ export function Work() {
             // Out: the name lifts away letter by letter, everything else
             // steps back.
             timeline
-              .to(q(prev, '[data-char]'), { yPercent: -115, stagger: 0.012, duration: 0.28, ease: 'power2.in' }, at)
+              .to(q(prev, '[data-char]'), { yPercent: -115, y: 0, stagger: 0.012, duration: 0.28, ease: 'power2.in' }, at)
               .to(q(prev, '[data-meta], [data-copy]'), { autoAlpha: 0, y: -18, duration: 0.2 }, at)
               .to(q(prev, '[data-visual]'), { autoAlpha: 0, scale: 0.96, duration: 0.26 }, at)
-              .to(q(prev, '[data-numeral]'), { yPercent: -35, autoAlpha: 0, duration: 0.34 }, at)
+              .to(q(prev, '[data-numeral]'), { yPercent: -35, y: 0, autoAlpha: 0, duration: 0.34 }, at)
               .set(prev, { autoAlpha: 0 }, at + 0.34);
 
             // In: the frame hands over, the name rises, then the system it
             // describes draws itself.
             timeline
               .set(next, { autoAlpha: 1 }, at + 0.1)
-              .fromTo(q(next, '[data-numeral]'), { yPercent: 35, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.36, ease: 'power2.out' }, at + 0.1)
-              .fromTo(q(next, '[data-char]'), { yPercent: 115 }, { yPercent: 0, stagger: 0.014, duration: 0.32, ease: 'power3.out' }, at + 0.18)
+              .fromTo(q(next, '[data-numeral]'), { yPercent: 35, y: 0, autoAlpha: 0 }, { yPercent: 0, y: 0, autoAlpha: 1, duration: 0.36, ease: 'power2.out' }, at + 0.1)
+              .fromTo(q(next, '[data-char]'), { yPercent: 115, y: 0 }, { yPercent: 0, y: 0, stagger: 0.014, duration: 0.32, ease: 'power3.out' }, at + 0.18)
               .fromTo(q(next, '[data-meta], [data-copy]'), { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.24, ease: 'power2.out' }, at + 0.3)
               .fromTo(q(next, '[data-visual]'), { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, at + 0.2)
               .fromTo(q(next, '[data-edge]'), { drawSVG: '0%' }, { drawSVG: '100%', stagger: 0.04, duration: 0.4, ease: 'power1.inOut' }, at + 0.34)

@@ -37,6 +37,7 @@ const ALLOWED_UNSTYLED = new Set<string>([
   'range',
   'hero-band',
   'kinetic',
+  'converge',
   'section-position',
   'section-practice',
   'section-currently',

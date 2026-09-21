@@ -1629,44 +1629,98 @@ body {
    ================================================================== */
 
 .section-contact {
-  /* Full-bleed and tall. The site opened on a statement; it closes on one,
-     so the whole thing reads as bracketed rather than as running out of
-     sections. */
+  /* Full-bleed, centred and tall, like the hero it answers. The landscape
+     comes back up from the bottom so the page is bracketed by the same
+     mountains rather than running out of sections. */
   position: relative;
-  padding: clamp(8rem, 26vh, 16rem) var(--gutter) clamp(3rem, 8vh, 5rem);
+  display: flex;
+  flex-direction: column;
+  min-height: 150svh;
+  padding: clamp(5rem, 14vh, 9rem) var(--gutter) 0;
   border-top: 1px solid var(--env-rule);
+  overflow: clip;
+  isolation: isolate;
+  text-align: center;
 }
 
-.contact-statement {
-  margin: 0 auto clamp(3rem, 9vh, 5rem);
+.contact-scene {
+  position: absolute;
+  inset: auto 0 0;
+  height: 100svh;
+  z-index: -1;
+  pointer-events: none;
+  /* Rise out of the page colour instead of starting at a hard edge. */
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 42%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 42%);
+}
+
+.contact-inner {
+  position: relative;
   max-width: 82rem;
+  margin: 0 auto;
+}
+
+.contact-lead {
+  margin: 0 0 0.25em;
   font-family: var(--font-display), serif;
-  font-size: clamp(2.25rem, 7vw, 6rem);
+  font-size: clamp(1.75rem, 4.4vw, 3.75rem);
   font-weight: 400;
-  line-height: 1.06;
-  letter-spacing: -0.022em;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--env-ink-muted);
+}
+
+.contact-converge {
+  margin: 0 0 clamp(2.5rem, 7vh, 4.5rem);
+  font-family: var(--font-display), serif;
+  font-size: clamp(4.25rem, 17vw, 16rem);
+  font-weight: 400;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
   color: var(--env-ink);
+}
+
+.converge-word {
+  display: block;
+  white-space: nowrap;
+  perspective: 7em;
+  transform-style: preserve-3d;
+}
+
+.converge-char {
+  display: inline-block;
+  will-change: transform, opacity;
 }
 
 .contact-primary {
-  display: block;
-  max-width: 82rem;
-  margin: 0 auto clamp(2rem, 5vh, 3rem);
+  display: inline-block;
   font-family: var(--font-display), serif;
-  font-size: clamp(1.375rem, 3.2vw, 2.5rem);
+  font-size: clamp(1.5rem, 3.4vw, 2.75rem);
   color: var(--env-ink);
-  border-bottom: 0;
-  width: fit-content;
+  border-bottom: 1px solid var(--env-rule);
+  padding-bottom: 0.15em;
 }
 
 .contact-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 2rem;
-  max-width: 82rem;
-  margin: 0 auto clamp(4rem, 12vh, 8rem);
+  justify-content: center;
+  gap: 0.5rem 1.75rem;
+  margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* The footer sits on the nearest range, so the last thing on the page is
+   standing on the ground the first thing floated above. */
+.site-foot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem 2rem;
+  margin-top: auto;
+  padding: clamp(2rem, 6vh, 3.5rem) 0 clamp(1.5rem, 4vh, 2.25rem);
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
@@ -1674,8 +1728,141 @@ body {
   color: var(--env-ink-muted);
 }
 
-.contact-location {
+.site-foot-name {
+  justify-self: start;
+  color: var(--env-ink);
+}
+
+.site-foot-where {
+  justify-self: end;
+}
+
+.site-foot-top {
+  grid-column: 1 / -1;
+  justify-self: center;
+  color: var(--env-ink);
+}
+
+.local-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-variant-numeric: tabular-nums;
+}
+
+.local-time-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--env-ink);
+  animation: local-time-pulse 2s ease-in-out infinite;
+}
+
+@keyframes local-time-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-foot {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .site-foot-name,
+  .site-foot-where {
+    justify-self: center;
+  }
+}
+
+/* ==================================================================
+   NOT FOUND
+   ================================================================== */
+
+.lost {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  padding: var(--gutter);
+  overflow: clip;
+  isolation: isolate;
+  text-align: center;
+  background: var(--env-sky);
+}
+
+.lost-scene {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.lost-inner {
+  max-width: 44rem;
+}
+
+.lost-eyebrow {
+  margin: 0 0 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--env-ink-muted);
+}
+
+.lost-code {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(7rem, 30vw, 22rem);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: var(--env-ink);
+}
+
+.fracture {
+  position: relative;
+  display: inline-block;
+}
+
+.fracture-base {
+  display: block;
+}
+
+.fracture-band {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  color: var(--env-ink);
+  will-change: transform, opacity;
+}
+
+.lost-line {
+  margin: clamp(1.5rem, 4vh, 2.5rem) auto clamp(2rem, 5vh, 3rem);
+  max-width: 46ch;
+  font-size: clamp(1rem, 1.4vw, 1.1875rem);
+  line-height: 1.6;
+  color: var(--env-ink-muted);
+}
+
+.lost-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 2.5rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.lost-links a {
+  color: var(--env-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--env-rule);
+  padding-bottom: 0.4em;
 }
 
 /* ==================================================================
@@ -2519,6 +2706,15 @@ body {
 
   .roll-char {
     transform: none !important;
+  }
+
+  .converge-char {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .local-time-dot {
+    animation: none;
   }
 
   *,
