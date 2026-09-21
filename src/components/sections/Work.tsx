@@ -5,13 +5,14 @@ import gsap from 'gsap';
 import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { ViewTransition, useRef } from 'react';
 
 import { DiagramList, DiagramNode, DiagramWire } from '@/components/case/SystemDiagram';
 import { KineticText } from '@/components/motion/KineticText';
 import { DIAGRAMS, type DiagramName } from '@/content/diagrams';
 import { DEPTH_LABEL, PROJECTS, type Project } from '@/content/projects';
 import { DIAGRAM_H, DIAGRAM_W, layoutDiagram } from '@/lib/diagram-geometry';
+import { refreshWhenFontsReady } from '@/lib/scroll';
 
 gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, useGSAP);
 
@@ -40,11 +41,12 @@ gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, useGSAP);
 const COUNT = PROJECTS.length;
 const pad = (n: number) => String(n).padStart(2, '0');
 
-function ProjectName({ name }: { name: string }) {
+function ProjectName({ name, slug }: { name: string; slug: string }) {
   // Authored characters rather than a runtime split. SplitText rewrites the
   // DOM underneath React and breaks reconciliation; these spans are React's
   // own, so nothing has to be rewritten to animate them.
   return (
+    <ViewTransition name={`project-${slug}`} share="morph" default="none">
     <h3 className="project-name">
       <span className="sr-only">{name}</span>
       <span className="project-name-mask" aria-hidden="true" data-name-mask>
@@ -55,6 +57,7 @@ function ProjectName({ name }: { name: string }) {
         ))}
       </span>
     </h3>
+    </ViewTransition>
   );
 }
 
@@ -101,13 +104,18 @@ function ProjectSlide({ project, index }: { project: Project; index: number }) {
           <span>{project.role}</span>
         </p>
 
-        <ProjectName name={project.name} />
+        <ProjectName name={project.name} slug={project.slug} />
 
         <div className="project-copy" data-copy>
           <p className="project-summary">{project.summary}</p>
 
           <p className="project-links">
-            <Link className="project-cta" href={`/work/${project.slug}`} data-cursor="Read">
+            <Link
+              className="project-cta"
+              href={`/work/${project.slug}`}
+              data-cursor="Read"
+              transitionTypes={['descend']}
+            >
               Read the case study
               <span aria-hidden="true"> →</span>
             </Link>
@@ -272,15 +280,10 @@ export function Work() {
       // and therefore where the pin starts and ends. Measuring before it
       // lands gives a sequence that starts in the wrong place — so measure
       // again once it has.
-      let cancelled = false;
-      document.fonts?.ready.then(() => {
-        if (!cancelled) ScrollTrigger.refresh();
-      });
+      // Shared with every other pinned section: one refresh, not one each.
+      refreshWhenFontsReady();
 
-      return () => {
-        cancelled = true;
-        media.revert();
-      };
+      return () => media.revert();
     },
     { scope: root },
   );
@@ -311,7 +314,12 @@ export function Work() {
           always reachable. */}
       <nav className="projects-index" aria-label="All projects">
         {PROJECTS.map((project, i) => (
-          <Link key={project.slug} href={`/work/${project.slug}`} data-cursor="Read">
+          <Link
+            key={project.slug}
+            href={`/work/${project.slug}`}
+            data-cursor="Read"
+            transitionTypes={['descend']}
+          >
             <span>{pad(i + 1)}</span>
             <span className="projects-index-name">{project.name}</span>
             <span>{DEPTH_LABEL[project.depth]}</span>

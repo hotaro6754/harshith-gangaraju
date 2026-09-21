@@ -132,8 +132,8 @@
   --color-sky: var(--env-sky);
   --color-rule: var(--env-rule);
   --font-display: var(--font-instrument-serif);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-text-sans);
+  --font-mono: var(--font-label-mono);
 }
 
 /* ==================================================================
@@ -340,8 +340,14 @@ body {
     radial-gradient(44rem 30rem at 76% 29%, rgba(190, 193, 200, 0.07), transparent 70%),
     #101828;
   /* The exit: the whole screen lifts away and the hero is underneath. */
-  transition: transform 900ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  transition: transform 650ms cubic-bezier(0.785, 0.135, 0.15, 0.86);
   will-change: transform;
+}
+
+/* Already seen this session: hidden before React even hydrates, instead of
+   flashing up for the second it takes to decide not to show. */
+html[data-opened] .preloader {
+  display: none;
 }
 
 .preloader[data-phase='leaving'] {
@@ -366,7 +372,7 @@ body {
 
 .loader-label {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(190, 193, 200, 0.78);
@@ -406,6 +412,67 @@ body {
   animation: loader-block-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* The first nine blocks run on CSS time from first paint, independent of
+   hydration. Each waits for its own --at, then pops on and stays on. */
+.loader-block[data-timed] {
+  /* forwards, not both: before its moment a block must look off. */
+  animation: loader-block-on 260ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--at) forwards;
+}
+
+.preloader[data-complete='true'] .loader-block {
+  background: #bec1c8;
+  animation: none;
+}
+
+@keyframes loader-block-on {
+  from {
+    background: #bec1c8;
+    transform: scale(0.55);
+    opacity: 0.4;
+  }
+  to {
+    background: #bec1c8;
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* The percentage, counted by CSS on the same schedule as the blocks.
+   Keyframe offsets are each block's landing time over 1250ms. */
+@property --loader-pct {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.loader-pct[data-counting='true'] {
+  animation: loader-count 1250ms step-end both;
+  counter-reset: pct var(--loader-pct);
+}
+
+.loader-pct[data-counting='true']::before {
+  content: counter(pct) '%';
+}
+
+@keyframes loader-block-fill {
+  to {
+    background: #bec1c8;
+  }
+}
+
+@keyframes loader-count {
+  0% { --loader-pct: 0; }
+  8.8% { --loader-pct: 10; }
+  22.4% { --loader-pct: 20; }
+  29.6% { --loader-pct: 30; }
+  46.4% { --loader-pct: 40; }
+  52.8% { --loader-pct: 50; }
+  65.6% { --loader-pct: 60; }
+  75.2% { --loader-pct: 70; }
+  89.6% { --loader-pct: 80; }
+  100% { --loader-pct: 90; }
+}
+
 @keyframes loader-block-in {
   from {
     transform: scale(0.55);
@@ -436,6 +503,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .loader-block[data-on='true'] {
     animation: none;
+  }
+
+  /* Still fills on schedule; it just does not pop. */
+  .loader-block[data-timed] {
+    animation-name: loader-block-fill;
   }
 
   .preloader {
@@ -491,7 +563,7 @@ body {
   gap: 0.6em;
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -530,7 +602,7 @@ body {
 .hero-disciplines {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -587,7 +659,7 @@ body {
   align-items: center;
   gap: 0.75rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
@@ -640,7 +712,7 @@ body {
   margin: 0;
   opacity: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--env-ink);
@@ -687,7 +759,7 @@ body {
 
 .depth-marker-note {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.5;
@@ -948,7 +1020,7 @@ body {
 .position-learning-title {
   margin: 0 0 0.75rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1036,7 +1108,7 @@ body {
 
 .position-facts dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1086,7 +1158,7 @@ body {
 
 .rung-index {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--env-ink-muted);
   transition: color var(--dur-element) var(--ease-out);
@@ -1155,7 +1227,7 @@ body {
 .roles-title {
   margin: 0 0 1.25rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1188,7 +1260,7 @@ body {
 
 .role-org {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1278,7 +1350,7 @@ body {
 .ledger-title {
   margin: 0 0 1rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1346,7 +1418,7 @@ body {
 .ledger-updated {
   margin: 2rem 0 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1396,7 +1468,7 @@ body {
 .projects-counter {
   margin: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   color: var(--env-ink-muted);
   font-variant-numeric: tabular-nums;
@@ -1475,7 +1547,7 @@ body {
   gap: 0.5rem 1.5rem;
   margin: 0 0 1.25rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1572,6 +1644,18 @@ body {
   inset: 0;
 }
 
+/* In the pinned frame the project owns the whole screen, so it is set to
+   fill it. At the list size the name and diagram left a dead band under
+   the header that read as a layout gap rather than as space. Bounded by
+   height as well as width so a short laptop screen never clips it. */
+.projects[data-mode='sequence'] .project-name {
+  font-size: min(11vw, 18svh, 11rem);
+}
+
+.projects[data-mode='sequence'] .project-diagram {
+  max-height: 76svh;
+}
+
 /* ---- Index ---- */
 
 .projects-index {
@@ -1589,7 +1673,7 @@ body {
   padding: 1rem 0;
   border-bottom: 1px solid var(--env-rule);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1722,7 +1806,7 @@ body {
   margin-top: auto;
   padding: clamp(2rem, 6vh, 3.5rem) 0 clamp(1.5rem, 4vh, 2.25rem);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1806,7 +1890,7 @@ body {
 .lost-eyebrow {
   margin: 0 0 1rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -1878,7 +1962,7 @@ body {
 .case-back {
   margin: 0 0 clamp(2.5rem, 6vh, 4rem);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1912,7 +1996,7 @@ body {
 
 .case-meta dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -2019,7 +2103,7 @@ body {
 
 .metric-label {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--env-ink);
@@ -2059,7 +2143,7 @@ body {
 
 .decision-instead span {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.75;
@@ -2289,7 +2373,7 @@ body {
 .case-foot h2 {
   margin: 0 0 1rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2312,7 +2396,7 @@ body {
 
 .case-stack dt {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -2415,7 +2499,7 @@ body {
   flex-direction: column;
   gap: 0.35rem;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--env-ink-muted);
@@ -2481,7 +2565,7 @@ body {
   gap: 1rem;
   padding: 1rem var(--gutter);
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   border-bottom: 1px solid transparent;
@@ -2663,7 +2747,7 @@ body {
 
 .cursor-label {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: currentColor;
@@ -2728,5 +2812,97 @@ body {
 
   body {
     transition: background-color 200ms linear, color 200ms linear;
+  }
+}
+
+/* ==================================================================
+   PAGE TRANSITIONS
+
+   The site's one spatial idea is descent, so moving between the index and
+   a case study is vertical, not the usual sideways slide: opening a project
+   goes deeper (the page you leave lifts away, the next rises from below),
+   coming back reverses it. The project name is the one thing that
+   survives the cut; it morphs into the case-study title. The nav is pinned
+   out of the transition so there is a fixed reference while content moves.
+   ================================================================== */
+
+.nav {
+  view-transition-name: site-nav;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-group(site-nav) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(site-nav) {
+  display: none;
+}
+
+::view-transition-new(site-nav) {
+  animation: none;
+}
+
+::view-transition-old(.descend) {
+  --travel: -8vh;
+  animation:
+    240ms cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
+    560ms cubic-bezier(0.65, 0, 0.35, 1) both vt-travel reverse;
+}
+
+::view-transition-new(.descend) {
+  --travel: 14vh;
+  animation:
+    360ms cubic-bezier(0, 0, 0.2, 1) 200ms both vt-fade,
+    720ms cubic-bezier(0.16, 1, 0.3, 1) both vt-travel;
+}
+
+::view-transition-old(.ascend) {
+  --travel: 8vh;
+  animation:
+    240ms cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
+    560ms cubic-bezier(0.65, 0, 0.35, 1) both vt-travel reverse;
+}
+
+::view-transition-new(.ascend) {
+  --travel: -14vh;
+  animation:
+    360ms cubic-bezier(0, 0, 0.2, 1) 200ms both vt-fade,
+    720ms cubic-bezier(0.16, 1, 0.3, 1) both vt-travel;
+}
+
+::view-transition-group(.morph) {
+  animation-duration: 640ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vt-travel {
+  from {
+    translate: 0 var(--travel);
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }

@@ -58,25 +58,46 @@ export function KineticText<T extends ElementType = 'p'>({
       const media = gsap.matchMedia();
 
       media.add('(prefers-reduced-motion: no-preference)', () => {
+        // No ScrollTrigger is created up front. Each one forces a layout read
+        // on creation, and with a dozen of these on the page that was a
+        // measurable share of the load stall. An IntersectionObserver costs
+        // nothing until it fires.
+        let observer: IntersectionObserver | undefined;
+        let trigger: ScrollTrigger | undefined;
+
         if (mode === 'fill') {
           gsap.set(words, { opacity: 0.16 });
-          gsap.to(words, {
-            opacity: 1,
-            ease: 'none',
-            stagger: 0.1,
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 82%',
-              end: 'bottom 48%',
-              scrub: 0.6,
+          const fill = gsap.to(words, { opacity: 1, ease: 'none', stagger: 0.1, paused: true });
+
+          // The scrubbed trigger is built one screen before it is needed,
+          // by which point every pin above it already exists and has been
+          // measured, so its positions come out right the first time.
+          observer = new IntersectionObserver(
+            (entries) => {
+              if (!entries.some((e) => e.isIntersecting) || trigger) return;
+              observer?.disconnect();
+              trigger = ScrollTrigger.create({
+                trigger: el,
+                start: 'top 82%',
+                end: 'bottom 48%',
+                scrub: 0.6,
+                animation: fill,
+              });
             },
-          });
-          return;
+            { rootMargin: '100% 0px' },
+          );
+          observer.observe(el);
+
+          return () => {
+            observer?.disconnect();
+            trigger?.kill();
+          };
         }
 
-        gsap.set(words, { yPercent: 115, rotate: 5, transformOrigin: '0% 100%' });
+        gsap.set(words, { yPercent: 115, y: 0, rotate: 5, transformOrigin: '0% 100%' });
         const rise = gsap.to(words, {
           yPercent: 0,
+          y: 0,
           rotate: 0,
           duration: 1.15,
           ease: 'expo.out',
@@ -85,12 +106,16 @@ export function KineticText<T extends ElementType = 'p'>({
           paused: true,
         });
 
-        const trigger = ScrollTrigger.create({
-          trigger: el,
-          start: 'top 88%',
-          once: true,
-          onEnter: () => rise.play(),
-        });
+        observer = new IntersectionObserver(
+          (entries) => {
+            if (!entries.some((e) => e.isIntersecting)) return;
+            observer?.disconnect();
+            rise.play();
+          },
+          // Roughly 'top 88%': starts as the line clears the bottom edge.
+          { rootMargin: '0px 0px -12% 0px' },
+        );
+        observer.observe(el);
 
         // Same rule as every other entrance on the site: fail visible.
         const timer = window.setTimeout(() => {
@@ -99,7 +124,7 @@ export function KineticText<T extends ElementType = 'p'>({
 
         return () => {
           window.clearTimeout(timer);
-          trigger.kill();
+          observer?.disconnect();
         };
       });
 

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Instrument_Serif } from 'next/font/google';
+import { IBM_Plex_Mono, Instrument_Serif, Schibsted_Grotesk } from 'next/font/google';
 
 import { Preloader } from '@/components/chrome/Preloader';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
@@ -19,15 +19,27 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 });
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+/**
+ * The text face. Schibsted Grotesk was drawn for a newspaper group: a
+ * grotesk built to carry long reading under editorial headlines, which is
+ * exactly its job here beside the serif. It replaced Geist, which is the
+ * default sans of the current portfolio template and read as one.
+ */
+const textSans = Schibsted_Grotesk({
+  variable: '--font-text-sans',
   subsets: ['latin'],
   display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+/**
+ * Labels and values only. Plex Mono has real engineering lineage and more
+ * open shapes at 11px than Geist Mono, which matters because every label on
+ * the site is set that small.
+ */
+const labelMono = IBM_Plex_Mono({
+  variable: '--font-label-mono',
   subsets: ['latin'],
+  weight: ['400', '500'],
   display: 'swap',
 });
 
@@ -47,9 +59,20 @@ export default function RootLayout({
     // dropped as invalid.
     <html
       lang="en"
+      // The inline script below may add data-opened before hydration.
+      suppressHydrationWarning
       data-env={HERO_ENVIRONMENT}
-      className={`${instrumentSerif.variable} ${geistSans.variable} ${geistMono.variable}`}
+      className={`${instrumentSerif.variable} ${textSans.variable} ${labelMono.variable}`}
     >
+      <head>
+        {/* Runs before first paint. Must stay in sync with SESSION_KEY in
+            Preloader.tsx. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem('aizen:opened')==='1')document.documentElement.setAttribute('data-opened','')}catch(e){}`,
+          }}
+        />
+      </head>
       <body>
         {/* Without JavaScript the overlay can never be dismissed, so it is
             removed outright rather than trapping the page behind it. */}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ViewTransition } from 'react';
 
 import { Nav } from '@/components/chrome/Nav';
 import { Cursor } from '@/components/motion/Cursor';
@@ -23,6 +24,9 @@ const BODIES = {
   'cyber-os': CyberOs,
   ideaspace: Ideaspace,
 } as const;
+
+/** Direction of travel between the index and a case study. See globals.css. */
+const DESCENT = { descend: 'descend', ascend: 'ascend', default: 'none' };
 
 export function generateStaticParams() {
   return PROJECTS.map((project) => ({ slug: project.slug }));
@@ -59,16 +63,21 @@ export default async function CaseStudyPage({
       <Nav />
       <Cursor />
 
+      <ViewTransition enter={DESCENT} exit={DESCENT} default="none">
       <main className="descent case" id="top">
         <article className="case-article">
           <header className="case-head">
             <p className="case-back">
-              <Link href="/#work" data-cursor="Back">
+              <Link href="/#work" data-cursor="Back" transitionTypes={['ascend']}>
                 <span aria-hidden="true">← </span>Work
               </Link>
             </p>
 
-            <h1 className="case-title">{project.name}</h1>
+            {/* Paired with the name in the work sequence: the title you
+                clicked travels here rather than being replaced by a copy. */}
+            <ViewTransition name={`project-${project.slug}`} share="morph" default="none">
+              <h1 className="case-title">{project.name}</h1>
+            </ViewTransition>
             <p className="case-summary">{project.summary}</p>
 
             <dl className="case-meta">
@@ -125,6 +134,7 @@ export default async function CaseStudyPage({
           </footer>
         </article>
       </main>
+      </ViewTransition>
     </>
   );
 }

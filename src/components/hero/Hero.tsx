@@ -8,6 +8,7 @@ import { useRef } from 'react';
 import { BLUR_LAYERS, SCENE, EnvironmentScene } from '@/components/environment/EnvironmentScene';
 import { ENVIRONMENTS } from '@/lib/environments';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
+import { refreshWhenFontsReady } from '@/lib/scroll';
 
 import { DepthMarkers } from './DepthMarkers';
 import { KineticBand } from './KineticBand';
@@ -129,12 +130,12 @@ export function Hero() {
             );
 
             // Markers ride their range, so they move with the same value.
-            timeline.fromTo(
-              gsap.utils.toArray<HTMLElement>(`[data-marker-range="${i}"]`),
-              { y: 0 },
-              { y, ease: 'none', duration: 1 },
-              0,
-            );
+            // Not every range carries one; an empty target only earns a
+            // console warning on every load.
+            const riders = gsap.utils.toArray<HTMLElement>(`[data-marker-range="${i}"]`);
+            if (riders.length) {
+              timeline.fromTo(riders, { y: 0 }, { y, ease: 'none', duration: 1 }, 0);
+            }
           }
 
           // The light holds near the horizon while the valley moves — the one
@@ -255,15 +256,10 @@ export function Hero() {
       // first scroll after a cold load lands on stale measurements and the
       // hero appears to slip before it catches — every scroll after it is
       // fine, which is what makes the bug easy to miss.
-      let cancelled = false;
-      document.fonts?.ready.then(() => {
-        if (!cancelled) ScrollTrigger.refresh();
-      });
+      // Shared with every other pinned section: one refresh, not one each.
+      refreshWhenFontsReady();
 
-      return () => {
-        cancelled = true;
-        media.revert();
-      };
+      return () => media.revert();
     },
     { scope: root },
   );

@@ -9,8 +9,9 @@ import { useEffect, useRef, useState } from 'react';
  * with a label, two indicator dots, ten blocks that fill one at a time, a
  * percentage, and an upward slide to exit.
  *
- * It runs for roughly six seconds, by design, so it is seen rather than
- * glimpsed. Three things keep that from becoming a trap:
+ * It runs for about two seconds: long enough to read as an opening, short
+ * enough not to be a toll. (It was six; that was the single most expensive
+ * thing on the site for a first-time visitor.) Three things keep it honest:
  *
  * - It cannot reach 100% before the page is genuinely ready (display face
  *   loaded, a frame painted). The pacing is authored; completion is not.
@@ -25,17 +26,20 @@ const BLOCKS = 10;
 /**
  * Delay before each of the first nine blocks, in ms. Deliberately uneven —
  * a bar that advances at a perfectly constant rate reads as a timer, one
- * that hesitates and catches up reads as work being done. Sums to 5000.
+ * that hesitates and catches up reads as work being done. Sums to 1250.
  */
-const STEPS = [480, 620, 420, 820, 360, 660, 520, 600, 520];
+const STEPS = [110, 170, 90, 210, 80, 160, 120, 180, 130];
+/** When each of the first nine blocks lands, from first paint. */
+const AT = STEPS.map((_, i) => STEPS.slice(0, i + 1).reduce((a, b) => a + b, 0));
+const TIMED_MS = AT[AT.length - 1];
 /** Pause before the final block lands, once the page is ready. */
-const FINAL_BLOCK_MS = 450;
+const FINAL_BLOCK_MS = 200;
 /** How long 100% holds before the box leaves. */
-const HOLD_MS = 350;
+const HOLD_MS = 220;
 /** The exit slide. */
-const EXIT_MS = 900;
+const EXIT_MS = 650;
 /** Hard ceiling on waiting for readiness signals. */
-const READY_FAILSAFE_MS = 2200;
+const READY_FAILSAFE_MS = 1800;
 
 type Phase = 'loading' | 'leaving' | 'done';
 
@@ -91,16 +95,20 @@ export function Preloader() {
     // allowed to wait on one forever.
     timers.push(window.setTimeout(markReady, READY_FAILSAFE_MS));
 
-    // Nine blocks on the authored schedule; the tenth waits for readiness.
-    let elapsed = 0;
-    STEPS.forEach((delay, i) => {
-      elapsed += delay;
-      timers.push(
-        window.setTimeout(() => {
-          if (!cancelled && !skipped.current) setProgress((i + 1) * 10);
-        }, elapsed),
-      );
-    });
+    // The first nine blocks are paced by CSS from first paint (see the
+    // markup below), not by timers started here. This effect only runs
+    // after hydration, and hydrating this page is most of a second of main
+    // thread; timer-driven blocks sat at 0% for all of it, which read as a
+    // hang. Here we only note when the CSS schedule has finished, measured
+    // from navigation start so it lines up with what is on screen.
+    timers.push(
+      window.setTimeout(
+        () => {
+          if (!cancelled && !skipped.current) setProgress(90);
+        },
+        Math.max(0, TIMED_MS - performance.now()),
+      ),
+    );
 
     return () => {
       cancelled = true;
@@ -170,7 +178,7 @@ export function Preloader() {
   const filled = Math.round(progress / 10);
 
   return (
-    <div className="preloader" data-phase={phase}>
+    <div className="preloader" data-phase={phase} data-complete={progress === 100}>
       <div
         className="loader-box"
         role="progressbar"
@@ -188,13 +196,26 @@ export function Preloader() {
         </div>
 
         <div className="loader-track" aria-hidden="true">
-          {Array.from({ length: BLOCKS }, (_, i) => (
-            <span key={i} className="loader-block" data-on={i < filled} />
-          ))}
+          {Array.from({ length: BLOCKS }, (_, i) =>
+            i < AT.length ? (
+              <span
+                key={i}
+                className="loader-block"
+                data-timed
+                style={{ '--at': `${AT[i]}ms` } as React.CSSProperties}
+              />
+            ) : (
+              <span key={i} className="loader-block" data-on={i < filled} />
+            ),
+          )}
         </div>
 
         <div className="loader-foot">
-          <span className="loader-pct">{progress}%</span>
+          {/* Counts on the same CSS schedule as the blocks until the last
+              one, which only JS can know is earned. */}
+          <span className="loader-pct" data-counting={progress < 100}>
+            {progress < 100 ? null : '100%'}
+          </span>
         </div>
       </div>
     </div>

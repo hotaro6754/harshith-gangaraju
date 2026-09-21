@@ -1,3 +1,5 @@
+import { ViewTransition } from 'react';
+
 import { Nav } from '@/components/chrome/Nav';
 import { Hero } from '@/components/hero/Hero';
 import { Cursor } from '@/components/motion/Cursor';
@@ -8,12 +10,16 @@ import { Position } from '@/components/sections/Position';
 import { Practice } from '@/components/sections/Practice';
 import { Work } from '@/components/sections/Work';
 
+/** Direction of travel between the index and a case study. See globals.css. */
+const DESCENT = { descend: 'descend', ascend: 'ascend', default: 'none' };
+
 export default function Home() {
   return (
     <>
       <Nav />
       <Cursor />
 
+      <ViewTransition enter={DESCENT} exit={DESCENT} default="none">
       <main id="top">
         <Hero />
 
@@ -29,6 +35,7 @@ export default function Home() {
           <Contact />
         </div>
       </main>
+      </ViewTransition>
     </>
   );
 }

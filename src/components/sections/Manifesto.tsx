@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Fragment, useRef } from 'react';
 
 import { hashSeed, mulberry32 } from '@/lib/ridge';
+import { refreshWhenFontsReady } from '@/lib/scroll';
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -152,15 +153,10 @@ export function Manifesto() {
       );
 
       // The pin's start depends on the display face having landed.
-      let cancelled = false;
-      document.fonts?.ready.then(() => {
-        if (!cancelled) ScrollTrigger.refresh();
-      });
+      // Shared with every other pinned section: one refresh, not one each.
+      refreshWhenFontsReady();
 
-      return () => {
-        cancelled = true;
-        media.revert();
-      };
+      return () => media.revert();
     },
     { scope: root },
   );
