@@ -37,7 +37,10 @@ export function Metric(props: MetricProps) {
 
   return (
     <div className="metric" data-unmeasured={unmeasured}>
-      <span className="metric-value">{unmeasured ? '—' : props.value}</span>
+      {/* Unmeasured says so in words. It used to be an em dash, which at
+          display size in this face is a hairline and read as a rendering
+          fault rather than as a stated absence. */}
+      <span className="metric-value">{unmeasured ? 'Not yet' : props.value}</span>
       <span className="metric-label">{props.label}</span>
       <span className="metric-source">
         {unmeasured ? (

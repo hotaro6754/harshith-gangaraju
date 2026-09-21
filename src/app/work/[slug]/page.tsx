@@ -5,7 +5,10 @@ import { ViewTransition } from 'react';
 
 import { Nav } from '@/components/chrome/Nav';
 import { Cursor } from '@/components/motion/Cursor';
+import { CaseHeroMotion, CaseIndex, CaseProgress } from '@/components/case/CaseChrome';
+import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
 import { DEPTH_LABEL, PROJECTS, PROJECT_BY_SLUG } from '@/content/projects';
+import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
 
 import CyberOs from './bodies/cyber-os.mdx';
 import Ideaspace from './bodies/ideaspace.mdx';
@@ -58,81 +61,122 @@ export default async function CaseStudyPage({
 
   if (!project || !Body) notFound();
 
+  const index = PROJECTS.findIndex((p) => p.slug === project.slug);
+  const next = PROJECTS[(index + 1) % PROJECTS.length];
+  const pad = (n: number) => String(n).padStart(2, '0');
+
   return (
     <>
       <Nav />
       <Cursor />
+      <CaseProgress />
 
       <ViewTransition enter={DESCENT} exit={DESCENT} default="none">
       <main className="descent case" id="top">
-        <article className="case-article">
-          <header className="case-head">
-            <p className="case-back">
-              <Link href="/#work" data-cursor="Back" transitionTypes={['ascend']}>
-                <span aria-hidden="true">← </span>Work
-              </Link>
-            </p>
+        {/* The opening frame: the same night, the name at the scale of the
+            landscape, and the facts along the ground line. The blog-post
+            layout it replaces put a 5rem title in a 46rem column and left
+            two thirds of the screen empty. */}
+        <CaseHeroMotion>
+          <header className="case-hero">
+            <div className="case-hero-scene" data-case-scene aria-hidden="true">
+              <EnvironmentScene id={HERO_ENVIRONMENT} maxBlurLayers={1} seed={project.slug} />
+            </div>
+
+            <div className="case-hero-top" data-case-fade>
+              <p className="case-back">
+                <Link href="/#work" data-cursor="Back" transitionTypes={['ascend']}>
+                  <span aria-hidden="true">← </span>Work
+                </Link>
+              </p>
+              <p className="case-kicker">
+                {pad(index + 1)} / {pad(PROJECTS.length)} · {DEPTH_LABEL[project.depth]}
+              </p>
+            </div>
 
             {/* Paired with the name in the work sequence: the title you
                 clicked travels here rather than being replaced by a copy. */}
             <ViewTransition name={`project-${project.slug}`} share="morph" default="none">
-              <h1 className="case-title">{project.name}</h1>
+              <h1 className="case-title" data-case-title>
+                {project.name}
+              </h1>
             </ViewTransition>
-            <p className="case-summary">{project.summary}</p>
 
-            <dl className="case-meta">
-              <div>
-                <dt>Role</dt>
-                <dd>{project.role}</dd>
-              </div>
-              <div>
-                <dt>Period</dt>
-                <dd>{project.period}</dd>
-              </div>
-              <div>
-                <dt>Layer</dt>
-                <dd>{DEPTH_LABEL[project.depth]}</dd>
-              </div>
-            </dl>
-          </header>
-
-          <div className="case-body">
-            <Body />
-          </div>
-
-          <footer className="case-foot">
-            <div className="case-stack">
-              <h2>Stack</h2>
-              <dl>
-                {project.stack.map((layer) => (
-                  <div key={layer.layer}>
-                    <dt>{layer.layer}</dt>
-                    <dd>{layer.tech.join(' · ')}</dd>
-                  </div>
-                ))}
+            <div className="case-hero-foot" data-case-fade>
+              <p className="case-summary" data-case-rise>
+                {project.summary}
+              </p>
+              <dl className="case-meta" data-case-rise>
+                <div>
+                  <dt>Role</dt>
+                  <dd>{project.role}</dd>
+                </div>
+                <div>
+                  <dt>Period</dt>
+                  <dd>{project.period}</dd>
+                </div>
+                <div>
+                  <dt>Layer</dt>
+                  <dd>{DEPTH_LABEL[project.depth]}</dd>
+                </div>
               </dl>
             </div>
+          </header>
+        </CaseHeroMotion>
 
-            <div className="case-links">
-              <h2>Links</h2>
-              <ul>
-                {project.links.map((link) => (
-                  <li key={link.href}>
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      data-cursor="Open"
-                    >
-                      {link.label}
-                      <span aria-hidden="true"> ↗</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </footer>
-        </article>
+        <div className="case-layout">
+          <aside className="case-rail">
+            <CaseIndex />
+          </aside>
+
+          <article className="case-body">
+            <Body />
+          </article>
+        </div>
+
+        <footer className="case-foot">
+          <div className="case-stack">
+            <h2>Stack</h2>
+            <dl>
+              {project.stack.map((layer) => (
+                <div key={layer.layer}>
+                  <dt>{layer.layer}</dt>
+                  <dd>{layer.tech.join(' · ')}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <div className="case-links">
+            <h2>Links</h2>
+            <ul>
+              {project.links.map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} target="_blank" rel="noreferrer noopener" data-cursor="Open">
+                    {link.label}
+                    <span aria-hidden="true"> ↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </footer>
+
+        {/* The hand-off. A case study that ends in a links table makes the
+            reader go back to the index to continue; this carries them on,
+            and the name they click becomes the next page's title. */}
+        <Link
+          className="case-next"
+          href={`/work/${next.slug}`}
+          transitionTypes={['descend']}
+          data-cursor="Next"
+        >
+          <span className="case-next-label">Next project</span>
+          <ViewTransition name={`project-${next.slug}`} share="morph" default="none">
+            <span className="case-next-name">{next.name}</span>
+          </ViewTransition>
+          <span className="case-next-line">{next.summary}</span>
+        </Link>
       </main>
       </ViewTransition>
     </>
