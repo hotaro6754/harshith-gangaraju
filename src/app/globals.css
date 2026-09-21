@@ -878,6 +878,12 @@ html[data-opened] .preloader {
   color: var(--env-ink);
 }
 
+/* Split-letter copies are aria-hidden beside a readable original. Letting
+   them be selected made every copy-paste of those lines come out twice. */
+[aria-hidden='true'] {
+  user-select: none;
+}
+
 /* ==================================================================
    KINETIC TEXT
 
@@ -988,144 +994,137 @@ html[data-opened] .preloader {
 
 .position-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: center;
 }
 
 .position-statement {
-  margin: 0 0 1.5rem;
-  max-width: 20ch;
+  margin: 0 0 1.75rem;
+  max-width: 17ch;
   font-family: var(--font-display), serif;
-  font-size: clamp(1.75rem, 3.6vw, 3.25rem);
-  line-height: 1.16;
-  letter-spacing: -0.015em;
+  font-size: clamp(2rem, 4.4vw, 4rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
   color: var(--env-ink);
+}
+
+/* The three fields in the sentence. Italic marks them as the terms the
+   figure beside them defines; hovering one lights its ring. */
+.position-statement [data-mark] {
+  font-style: italic;
+  transition: color 240ms ease;
 }
 
 .position-detail {
   margin: 0;
-  max-width: 46ch;
+  max-width: 44ch;
   font-size: clamp(0.9375rem, 1.2vw, 1.0625rem);
-  line-height: 1.62;
+  line-height: 1.65;
   color: var(--env-ink-muted);
 }
 
-.position-learning {
-  margin-top: clamp(2rem, 5vh, 3.5rem);
-  padding-top: 1.25rem;
+.position-figure {
+  position: relative;
+}
+
+.position-now {
+  margin: clamp(3rem, 8vh, 5rem) 0 0;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--env-rule);
-}
-
-.position-learning-title {
-  margin: 0 0 0.75rem;
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  max-width: 58ch;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  line-height: 1.35;
   color: var(--env-ink-muted);
 }
 
-.position-learning-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.875rem;
-  color: var(--env-ink);
-}
+/* ---- The intersection ---- */
 
-/* ---- Stack diagram ---- */
-
-.stack-diagram {
+.intersection {
+  display: block;
   width: 100%;
   height: auto;
   overflow: visible;
+  --reveal: 1;
 }
 
-.stack-edges line {
+.intersection-ring {
+  fill: none;
   stroke: var(--env-ink);
   stroke-width: 1;
-  opacity: 0.32;
+  opacity: 0.34;
   vector-effect: non-scaling-stroke;
+  transition: opacity 240ms ease, stroke-width 240ms ease;
 }
 
-.stack-node,
-.stack-node-knockout {
+.intersection-core {
+  fill: var(--env-ink);
+  opacity: calc(var(--reveal) * 0.12);
+}
+
+.intersection-name {
+  text-anchor: middle;
+  dominant-baseline: middle;
+  font-family: var(--font-display), serif;
+  font-size: 30px;
+  fill: var(--env-ink);
+  transition: opacity 240ms ease;
+}
+
+.intersection-overlaps {
+  /* Labels over the rings must not steal the rings' hover. */
+  pointer-events: none;
+}
+
+.intersection-overlap,
+.intersection-centre {
   text-anchor: middle;
   dominant-baseline: middle;
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 13px;
-  letter-spacing: 0.1em;
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.stack-node {
   fill: var(--env-ink-muted);
+  opacity: var(--reveal);
 }
 
-/* Knocks the connecting line out from behind the label. */
-.stack-node-knockout {
-  stroke: var(--env-sky);
-  stroke-width: 9px;
-  stroke-linejoin: round;
-  fill: none;
-}
-
-[data-primary='true'] .stack-node {
+.intersection-centre {
   fill: var(--env-ink);
 }
 
-/* ==================================================================
-   PULL QUOTES
-   ================================================================== */
+.intersection-dot {
+  fill: var(--env-ink);
+  opacity: var(--reveal);
+}
 
-.pull-quote {
-  margin: clamp(2rem, 5vh, 3rem) 0 0;
-  padding-left: 1.25rem;
-  border-left: 1px solid var(--env-rule);
-  max-width: 38ch;
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.125rem, 1.9vw, 1.5rem);
-  line-height: 1.35;
+/* Linked emphasis, both ways, without a line of script: hover a field in
+   the sentence or its ring, and that ring strengthens while the others
+   recede. */
+.position-body:has([data-mark='security']:hover, [data-ring='security']:hover) [data-ring='security'] .intersection-ring,
+.position-body:has([data-mark='ai']:hover, [data-ring='ai']:hover) [data-ring='ai'] .intersection-ring,
+.position-body:has([data-mark='infra']:hover, [data-ring='infra']:hover) [data-ring='infra'] .intersection-ring {
+  opacity: 0.95;
+  stroke-width: 1.75;
+}
+
+.position-body:has([data-mark]:hover, [data-ring]:hover) .intersection-field:not(:hover) .intersection-name {
+  opacity: 0.45;
+}
+
+.position-body:has([data-mark='security']:hover) [data-ring='security'] .intersection-name,
+.position-body:has([data-mark='ai']:hover) [data-ring='ai'] .intersection-name,
+.position-body:has([data-mark='infra']:hover) [data-ring='infra'] .intersection-name {
+  opacity: 1;
+}
+
+.position-body:has([data-ring='security']:hover) [data-mark='security'],
+.position-body:has([data-ring='ai']:hover) [data-mark='ai'],
+.position-body:has([data-ring='infra']:hover) [data-mark='infra'] {
   color: var(--env-ink);
-}
-
-.pull-quote-wide {
-  max-width: 46ch;
-}
-
-.position-facts {
-  margin: clamp(2rem, 5vh, 3rem) 0 0;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--env-rule);
-  display: grid;
-  gap: 1rem;
-}
-
-.position-facts dt {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--env-ink-muted);
-  margin-bottom: 0.3rem;
-}
-
-.position-facts dd {
-  margin: 0;
-  font-size: 0.9375rem;
-  color: var(--env-ink);
-}
-
-.position-facts-sub {
-  display: block;
-  margin-top: 0.15rem;
-  font-size: 0.8125rem;
-  color: var(--env-ink-muted);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.12em;
 }
 
 /* ==================================================================
@@ -2766,8 +2765,23 @@ html[data-opened] .preloader {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .position-diagram {
+  .position-figure {
     max-width: 30rem;
+    margin: 0 auto;
+  }
+}
+
+/* The figure scales to about half size on a phone; its labels are sized in
+   figure units, so they have to be set larger to land near 11px on screen. */
+@media (max-width: 640px) {
+  .intersection-overlap,
+  .intersection-centre {
+    font-size: 19px;
+    letter-spacing: 0.08em;
+  }
+
+  .intersection-name {
+    font-size: 40px;
   }
 }
 

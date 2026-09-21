@@ -20,9 +20,15 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  *   so scrolling back un-reads it.
  *
  * Words are authored spans, not a runtime split, so React owns every node.
- * The full string is always present for assistive tech; the split copy is
- * hidden from it. Everything is set on the client inside `matchMedia`, so
- * without JS or with reduced motion the text is simply there.
+ * The split words are the text itself: there is no hidden duplicate. An
+ * earlier version kept an sr-only copy beside an aria-hidden split one, and
+ * selecting a paragraph copied it twice. Word-level spans read as one run
+ * of text to assistive tech, so the duplicate bought nothing. Everything is
+ * set on the client inside `matchMedia`, so without JS or with reduced
+ * motion the text is simply there.
+ *
+ * `marks` tags particular words (matched case-insensitively, punctuation
+ * ignored) with `data-mark`, so a section can style or link them.
  */
 
 type Mode = 'rise' | 'fill';
@@ -34,6 +40,8 @@ type KineticTextProps<T extends ElementType> = {
   mode?: Mode;
   /** Seconds before a `rise` begins, for sequencing against siblings. */
   delay?: number;
+  /** Words to tag, keyed by the bare lowercase word, valued by the tag. */
+  marks?: Readonly<Record<string, string>>;
 } & Omit<ComponentPropsWithoutRef<T>, 'children' | 'as'>;
 
 /** If the entry never registers, show the words anyway after this long. */
@@ -44,6 +52,7 @@ export function KineticText<T extends ElementType = 'p'>({
   text,
   mode = 'rise',
   delay = 0,
+  marks,
   className,
   ...rest
 }: KineticTextProps<T>) {
@@ -133,8 +142,6 @@ export function KineticText<T extends ElementType = 'p'>({
     { scope: root, dependencies: [mode, delay] },
   );
 
-  const full = lines.join(' ');
-
   const Tag = (as ?? 'p') as ElementType;
 
   return (
@@ -144,8 +151,7 @@ export function KineticText<T extends ElementType = 'p'>({
       className={['kinetic', className].filter(Boolean).join(' ')}
       data-mode={mode}
     >
-      <span className="sr-only">{full}</span>
-      <span className="kinetic-lines" aria-hidden="true">
+      <span className="kinetic-lines">
         {lines.map((line, l) => (
           <span className="kinetic-line" key={`${line}-${l}`}>
             {line.split(' ').map((word, w, all) => (
@@ -153,7 +159,11 @@ export function KineticText<T extends ElementType = 'p'>({
               // inline-block collapses and the words would touch.
               <Fragment key={`${word}-${w}`}>
                 <span className="kinetic-mask">
-                  <span className="kinetic-word" data-kt-word>
+                  <span
+                    className="kinetic-word"
+                    data-kt-word
+                    data-mark={marks?.[word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '')]}
+                  >
                     {word}
                   </span>
                 </span>

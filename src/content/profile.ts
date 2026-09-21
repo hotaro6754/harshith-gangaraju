@@ -96,39 +96,6 @@ export const QUOTES = {
 } as const;
 
 /**
- * The stack diagram. Not a technology wall — each node is a layer, and the
- * edges are what the site is actually claiming: that these connect.
- */
-export interface StackNode {
-  id: string;
-  label: string;
-  /** Fraction of the diagram's width and height. */
-  x: number;
-  y: number;
-  /** Emphasised nodes are the centre of the claim. */
-  primary?: boolean;
-}
-
-export const STACK_NODES: StackNode[] = [
-  { id: 'software', label: 'Software', x: 0.5, y: 0.1, primary: true },
-  { id: 'security', label: 'Security', x: 0.16, y: 0.45, primary: true },
-  { id: 'ai', label: 'AI', x: 0.5, y: 0.45, primary: true },
-  { id: 'infra', label: 'Infrastructure', x: 0.84, y: 0.45, primary: true },
-  { id: 'product', label: 'Product', x: 0.5, y: 0.78 },
-  { id: 'interface', label: 'Interface', x: 0.5, y: 0.96 },
-];
-
-export const STACK_EDGES: Array<[string, string]> = [
-  ['software', 'security'],
-  ['software', 'ai'],
-  ['software', 'infra'],
-  ['security', 'product'],
-  ['ai', 'product'],
-  ['infra', 'product'],
-  ['product', 'interface'],
-];
-
-/**
  * Capabilities bound to the system they were used in. Anything that cannot
  * be traced to something shipped does not appear here.
  */

@@ -1,16 +1,28 @@
 import { KineticText } from '@/components/motion/KineticText';
 import { Reveal } from '@/components/motion/Reveal';
-import { EDUCATION, PROFILE, QUOTES } from '@/content/profile';
+import { EDUCATION, PROFILE } from '@/content/profile';
 
-import { StackDiagram } from './StackDiagram';
+import { Intersection } from './Intersection';
 
 /**
- * Section 01 — Position.
+ * Section 01: Position.
  *
- * One claim, the diagram that supports it, and the sentence that explains why
- * any of it happened. College is here but deliberately small: it is a chapter,
- * not the identity, and the work above it has to do the talking.
+ * The previous version was the generic about block: a heading, a statement,
+ * a paragraph, a pull quote and a label/value list of college and city.
+ * Every portfolio template has that exact stack, and the quote repeated what
+ * the manifesto had just performed.
+ *
+ * Now the statement is the section. Its three fields are drawn beside it as
+ * rings that converge as you scroll, with the real work that lives in each
+ * overlap, so "the intersection of cybersecurity, AI and infrastructure"
+ * stops being a phrase and becomes a claim you can check. The field names in
+ * the sentence and the rings light each other on hover.
+ *
+ * College and city are one sentence in his own voice rather than a form.
  */
+
+const MARKS = { cybersecurity: 'security', ai: 'ai', infrastructure: 'infra' } as const;
+
 export function Position() {
   return (
     <section className="section section-position" id="position" aria-labelledby="position-title">
@@ -20,7 +32,12 @@ export function Position() {
 
       <div className="position-body">
         <div className="position-claim">
-          <KineticText className="position-statement" mode="fill" text={PROFILE.position} />
+          <KineticText
+            className="position-statement"
+            mode="fill"
+            marks={MARKS}
+            text={PROFILE.position}
+          />
 
           <Reveal delay={0.08}>
             <p className="position-detail">
@@ -30,32 +47,20 @@ export function Position() {
               that stays up, and finding out what it does when someone leans on it.
             </p>
           </Reveal>
-
-          <KineticText as="blockquote" className="pull-quote" mode="fill" text={QUOTES.curiosity} />
-
-          <Reveal delay={0.22}>
-            <dl className="position-facts">
-              <div>
-                <dt>Studying</dt>
-                <dd>
-                  {EDUCATION.degree}
-                  <span className="position-facts-sub">
-                    {EDUCATION.institution} · {EDUCATION.year}, class of {EDUCATION.graduation}
-                  </span>
-                </dd>
-              </div>
-              <div>
-                <dt>Based in</dt>
-                <dd>{PROFILE.location}</dd>
-              </div>
-            </dl>
-          </Reveal>
         </div>
 
-        <div className="position-diagram">
-          <StackDiagram />
+        <div className="position-figure">
+          <Intersection />
         </div>
       </div>
+
+      <Reveal>
+        <p className="position-now">
+          Right now I&rsquo;m in the {EDUCATION.year.toLowerCase()} of a {EDUCATION.degree} at{' '}
+          {EDUCATION.institution}, in {PROFILE.location.split(',')[0]}. Class of{' '}
+          {EDUCATION.graduation}.
+        </p>
+      </Reveal>
     </section>
   );
 }
