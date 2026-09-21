@@ -1,7 +1,6 @@
 import Link from 'next/link';
 
 import { Nav } from '@/components/chrome/Nav';
-import { InstrumentStrip } from '@/components/chrome/InstrumentStrip';
 import { Cursor } from '@/components/motion/Cursor';
 import { Reveal } from '@/components/motion/Reveal';
 import { EXPERIMENTS, LAB_INTRO } from '@/content/lab';
@@ -87,7 +86,6 @@ export default function LabPage() {
           </p>
         </section>
 
-        <InstrumentStrip />
       </main>
     </>
   );

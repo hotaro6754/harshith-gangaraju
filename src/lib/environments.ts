@@ -3,7 +3,7 @@
  *
  * Every value here was read off the live FeralUI Gradient Builder
  * (SCENES › Mist) — https://feralui.dev/gradients — not derived or guessed.
- * Credited in the site colophon.
+ * Credited in the README.
  *
  * Band roles for `stops`:
  *   0 sky · 1 air (light-source tint) · 2..5 range tones, far → near

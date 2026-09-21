@@ -54,25 +54,15 @@ export function SystemDiagram({ name }: SystemDiagramProps) {
       <svg viewBox={`0 0 ${DIAGRAM_W} ${DIAGRAM_H}`} aria-hidden="true" focusable="false">
         <g className="diagram-edges">
           {edges.map((edge, i) => (
-            <g key={edge.key}>
+            <DiagramWire key={edge.key} edge={edge} index={i}>
               <motion.path
                 d={edge.d}
                 className="diagram-edge"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={drawn ? { pathLength: 1, opacity: 1 } : { pathLength: 0, opacity: 0 }}
-                transition={{ duration: 0.75, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: drawn ? 1 : 0 }}
+                transition={{ duration: 0.9, delay: i * 0.09, ease: [0.65, 0, 0.35, 1] }}
               />
-              <circle
-                className="diagram-pulse"
-                r="2.5"
-                style={
-                  {
-                    offsetPath: `path("${edge.d}")`,
-                    animationDelay: `${i * 0.45}s`,
-                  } as React.CSSProperties
-                }
-              />
-            </g>
+            </DiagramWire>
           ))}
         </g>
 
@@ -129,6 +119,47 @@ export function DiagramList({ name }: { name: DiagramName }) {
         </li>
       ))}
     </ol>
+  );
+}
+
+/**
+ * One wire, shared by both renderers. Three layers, back to front:
+ *
+ * - the route, dashed and faint, always present. It is the diagram's
+ *   structure, so it never waits on an animation to exist;
+ * - the conductor, passed in as `children`, which each renderer draws in its
+ *   own way (Motion here, a scrubbed GSAP timeline in the work sequence);
+ * - a port where it lands, and a signal that runs the route on a loop so
+ *   direction reads without arrowheads crowding the labels.
+ *
+ * The signal moves on `offset-distance`, which is composited; animating a
+ * dash offset instead would repaint the whole path every frame.
+ */
+export function DiagramWire({
+  edge,
+  index,
+  children,
+}: {
+  edge: ReturnType<typeof layoutDiagram>['edges'][number];
+  index: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <g className="diagram-wire">
+      <path d={edge.d} className="diagram-track" />
+      {children}
+      <circle className="diagram-port" cx={edge.to.x} cy={edge.to.y} r="2.5" data-port />
+      <circle
+        className="diagram-pulse"
+        r="2.25"
+        style={
+          {
+            offsetPath: `path("${edge.d}")`,
+            animationDelay: `${(index * 0.53) % 3.2}s`,
+          } as React.CSSProperties
+        }
+      />
+    </g>
   );
 }
 

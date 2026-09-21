@@ -1,3 +1,4 @@
+import { KineticText } from '@/components/motion/KineticText';
 import { Reveal } from '@/components/motion/Reveal';
 import { EDUCATION, PROFILE, QUOTES } from '@/content/profile';
 
@@ -14,16 +15,12 @@ export function Position() {
   return (
     <section className="section section-position" id="position" aria-labelledby="position-title">
       <div className="section-head">
-        <h2 className="section-title" id="position-title">
-          Position
-        </h2>
+        <KineticText as="h2" className="section-title" id="position-title" text="Position" />
       </div>
 
       <div className="position-body">
         <div className="position-claim">
-          <Reveal>
-            <p className="position-statement">{PROFILE.position}</p>
-          </Reveal>
+          <KineticText className="position-statement" mode="fill" text={PROFILE.position} />
 
           <Reveal delay={0.08}>
             <p className="position-detail">
@@ -34,9 +31,7 @@ export function Position() {
             </p>
           </Reveal>
 
-          <Reveal delay={0.16}>
-            <blockquote className="pull-quote">{QUOTES.curiosity}</blockquote>
-          </Reveal>
+          <KineticText as="blockquote" className="pull-quote" mode="fill" text={QUOTES.curiosity} />
 
           <Reveal delay={0.22}>
             <dl className="position-facts">

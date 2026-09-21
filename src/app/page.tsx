@@ -1,8 +1,6 @@
-import { InstrumentStrip } from '@/components/chrome/InstrumentStrip';
 import { Nav } from '@/components/chrome/Nav';
 import { Hero } from '@/components/hero/Hero';
 import { Cursor } from '@/components/motion/Cursor';
-import { RidgeConnector } from '@/components/motion/RidgeConnector';
 import { Contact } from '@/components/sections/Contact';
 import { Currently } from '@/components/sections/Currently';
 import { Manifesto } from '@/components/sections/Manifesto';
@@ -23,14 +21,12 @@ export default function Home() {
             reads as a single descent rather than a hero with a website
             attached to the bottom of it. */}
         <div className="descent">
-          <RidgeConnector />
           <Manifesto />
           <Position />
           <Work />
           <Practice />
           <Currently />
           <Contact />
-          <InstrumentStrip />
         </div>
       </main>
     </>

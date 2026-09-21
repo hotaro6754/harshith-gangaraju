@@ -26,6 +26,37 @@ export interface PlacedNode {
 export interface PlacedEdge {
   key: string;
   d: string;
+  /** Where the edge lands: the port drawn on the receiving node. */
+  to: { x: number; y: number };
+}
+
+/** Corner radius where a route turns, in user units. */
+const BEND = 12;
+
+/**
+ * Route an edge the way a schematic would: down, across, down, with rounded
+ * turns. The earlier version was a single cubic Bézier per edge, which read
+ * as a generic flowchart squiggle; right angles read as wiring, which is what
+ * these are. The cross-over happens at the midpoint between the two nodes,
+ * so siblings converging on one node share a bus line instead of crossing.
+ */
+function route(ax: number, start: number, bx: number, end: number): string {
+  const dx = bx - ax;
+  if (Math.abs(dx) < 1) return `M${ax},${start}V${end}`;
+
+  const sx = Math.sign(dx);
+  const sy = Math.sign(end - start) || 1;
+  const mid = (start + end) / 2;
+  const r = Math.min(BEND, Math.abs(dx) / 2, Math.abs(end - start) / 4);
+
+  return [
+    `M${ax},${start}`,
+    `V${mid - sy * r}`,
+    `Q${ax},${mid} ${ax + sx * r},${mid}`,
+    `H${bx - sx * r}`,
+    `Q${bx},${mid} ${bx},${mid + sy * r}`,
+    `V${end}`,
+  ].join('');
 }
 
 export function layoutDiagram(diagram: SystemDiagramData): {
@@ -54,11 +85,10 @@ export function layoutDiagram(diagram: SystemDiagramData): {
     // Stop short of each node so the line never runs under its label.
     const start = a.y + Math.sign(dy) * NODE_PAD_Y;
     const end = b.y - Math.sign(dy) * NODE_PAD_Y;
-    const mid = (start + end) / 2;
-    // Vertical-first curve: siblings converging on one node stay legible.
     return {
       key: `${edge.from}-${edge.to}`,
-      d: `M${a.x},${start}C${a.x},${mid} ${b.x},${mid} ${b.x},${end}`,
+      d: route(a.x, start, b.x, end),
+      to: { x: b.x, y: end },
     };
   });
 

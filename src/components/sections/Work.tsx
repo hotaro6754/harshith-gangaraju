@@ -7,7 +7,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import { useRef } from 'react';
 
-import { DiagramList, DiagramNode } from '@/components/case/SystemDiagram';
+import { DiagramList, DiagramNode, DiagramWire } from '@/components/case/SystemDiagram';
+import { KineticText } from '@/components/motion/KineticText';
 import { DIAGRAMS, type DiagramName } from '@/content/diagrams';
 import { DEPTH_LABEL, PROJECTS, type Project } from '@/content/projects';
 import { DIAGRAM_H, DIAGRAM_W, layoutDiagram } from '@/lib/diagram-geometry';
@@ -69,8 +70,10 @@ function ProjectDiagram({ name }: { name: DiagramName }) {
       data-diagram
     >
       <g className="diagram-edges">
-        {edges.map((edge) => (
-          <path key={edge.key} d={edge.d} className="diagram-edge" data-edge />
+        {edges.map((edge, i) => (
+          <DiagramWire key={edge.key} edge={edge} index={i}>
+            <path d={edge.d} className="diagram-edge" data-edge />
+          </DiagramWire>
         ))}
       </g>
       <g className="diagram-nodes">
@@ -159,7 +162,7 @@ export function Work() {
             gsap.set(slide, { autoAlpha: 0 });
             gsap.set(q(slide, '[data-char]'), { yPercent: 115 });
             gsap.set(q(slide, '[data-edge]'), { drawSVG: '0%' });
-            gsap.set(q(slide, '[data-node]'), { autoAlpha: 0 });
+            gsap.set(q(slide, '[data-node], [data-port]'), { autoAlpha: 0 });
           });
 
           // ---- First project: arrives on entry, not on the scrub -------
@@ -253,7 +256,7 @@ export function Work() {
               .fromTo(q(next, '[data-meta], [data-copy]'), { autoAlpha: 0, y: 18 }, { autoAlpha: 1, y: 0, duration: 0.24, ease: 'power2.out' }, at + 0.3)
               .fromTo(q(next, '[data-visual]'), { autoAlpha: 0, scale: 1.04 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'power2.out' }, at + 0.2)
               .fromTo(q(next, '[data-edge]'), { drawSVG: '0%' }, { drawSVG: '100%', stagger: 0.04, duration: 0.4, ease: 'power1.inOut' }, at + 0.34)
-              .fromTo(q(next, '[data-node]'), { autoAlpha: 0 }, { autoAlpha: 1, stagger: 0.025, duration: 0.18 }, at + 0.4);
+              .fromTo(q(next, '[data-node], [data-port]'), { autoAlpha: 0 }, { autoAlpha: 1, stagger: 0.02, duration: 0.18 }, at + 0.4);
 
             timeline.addLabel(`p${i}`, at + 0.8);
           }
@@ -286,9 +289,7 @@ export function Work() {
     <section className="projects" id="work" ref={root} aria-labelledby="work-title">
       <div className="projects-pin" data-pin>
         <header className="projects-head">
-          <h2 className="section-title" id="work-title">
-            Selected work
-          </h2>
+          <KineticText as="h2" className="section-title" id="work-title" text="Selected work" />
           <p className="projects-counter" aria-hidden="true">
             <span data-counter>01</span> / {pad(COUNT)}
           </p>

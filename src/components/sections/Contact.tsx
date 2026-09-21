@@ -1,4 +1,6 @@
+import { KineticText } from '@/components/motion/KineticText';
 import { Reveal } from '@/components/motion/Reveal';
+import { RollLink } from '@/components/motion/RollLink';
 import { PROFILE } from '@/content/profile';
 
 /**
@@ -16,30 +18,32 @@ export function Contact() {
         Contact
       </h2>
 
-      <Reveal>
-        <p className="contact-statement">
-          If you are building something
-          <br />
-          that shouldn&rsquo;t break,
-          <br />
-          let&rsquo;s talk.
-        </p>
+      <KineticText
+        className="contact-statement"
+        text={['If you are building something', 'that shouldn’t break,', 'let’s talk.']}
+      />
+
+      <Reveal delay={0.2}>
+        <RollLink
+          className="contact-primary"
+          href={`mailto:${PROFILE.email}`}
+          data-cursor="Mail"
+          label={PROFILE.email}
+        />
       </Reveal>
 
-      <Reveal delay={0.1}>
-        <a className="contact-primary" href={`mailto:${PROFILE.email}`} data-cursor="Mail">
-          {PROFILE.email}
-        </a>
-      </Reveal>
-
-      <Reveal delay={0.16}>
+      <Reveal delay={0.28}>
         <ul className="contact-links">
           {PROFILE.links.map((link) => (
             <li key={link.href}>
-              <a href={link.href} target="_blank" rel="noreferrer noopener" data-cursor="Open">
-                {link.label}
-                <span aria-hidden="true"> ↗</span>
-              </a>
+              <RollLink
+                href={link.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                data-cursor="Open"
+                label={link.label}
+                trailing={<span aria-hidden="true"> ↗</span>}
+              />
             </li>
           ))}
           <li>
@@ -47,17 +51,6 @@ export function Contact() {
           </li>
         </ul>
       </Reveal>
-
-      <footer className="colophon">
-        <p>
-          Built with Next.js, GSAP and Motion. The landscape is generated SVG: no
-          images, no WebGL. Colour presets derive from the{' '}
-          <a href="https://feralui.dev/gradients" target="_blank" rel="noreferrer noopener">
-            FeralUI Gradient Builder
-          </a>
-          .
-        </p>
-      </footer>
     </section>
   );
 }

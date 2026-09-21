@@ -3,6 +3,7 @@
 import { useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react';
 import { useRef, useState } from 'react';
 
+import { KineticText } from '@/components/motion/KineticText';
 import { Reveal } from '@/components/motion/Reveal';
 import { PRINCIPLES, QUOTES, ROLES } from '@/content/profile';
 
@@ -44,9 +45,7 @@ export function Practice() {
   return (
     <section className="section section-practice" id="practice" aria-labelledby="practice-title">
       <div className="section-head">
-        <h2 className="section-title" id="practice-title">
-          Practice
-        </h2>
+        <KineticText as="h2" className="section-title" id="practice-title" text="Practice" />
         <p className="section-note">What I optimise for, in order. The size is the rank.</p>
       </div>
 
@@ -66,12 +65,10 @@ export function Practice() {
         ))}
       </ol>
 
-      <Reveal>
-        <blockquote className="practice-quote">{QUOTES.overbuilding}</blockquote>
-      </Reveal>
+      <KineticText as="blockquote" className="practice-quote" mode="fill" text={QUOTES.overbuilding} />
 
       <div className="roles-block">
-        <h3 className="roles-title">Where I have had to mean it</h3>
+        <KineticText as="h3" className="roles-title" text="Where I have had to mean it" />
         <ul className="roles">
           {ROLES.map((role, i) => (
             <Reveal as="li" key={`${role.org}-${role.title}`} delay={i * 0.06}>

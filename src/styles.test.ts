@@ -36,6 +36,7 @@ const ALLOWED_UNSTYLED = new Set<string>([
   // Hooks read by scripts rather than styled.
   'range',
   'hero-band',
+  'kinetic',
   'section-position',
   'section-practice',
   'section-currently',
