@@ -73,7 +73,13 @@ export function Contact() {
           {PROFILE.location} · <LocalTime />
         </span>
 
-        <RollLink className="site-foot-top" href="#top" label="Back to the surface" data-cursor="Up" />
+        <RollLink
+          className="site-foot-top"
+          href="#top"
+          label="Back to the surface"
+          aria-label="Back to the top of the page"
+          data-cursor="Up"
+        />
       </footer>
     </section>
   );

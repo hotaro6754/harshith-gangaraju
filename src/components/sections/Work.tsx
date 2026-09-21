@@ -129,6 +129,7 @@ function ProjectSlide({ project, index }: { project: Project; index: number }) {
               >
                 {link.label}
                 <span aria-hidden="true"> ↗</span>
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             ))}
           </p>

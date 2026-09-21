@@ -14,6 +14,21 @@ npm run lint
 node scripts/make-grain.mjs   # regenerate public/grain.png
 ```
 
+## Domain and SEO
+
+Canonical origin is `NEXT_PUBLIC_SITE_URL` (see `.env.example`), default
+`https://harshith.qyverix.in`. Everything that needs an absolute URL reads it
+from `src/lib/site.ts`: page metadata, Open Graph cards, `sitemap.xml`,
+`robots.txt` and the JSON-LD (Person with alternate names, Qyverix as
+Organization, ProfilePage, TechArticle per case study).
+
+Why that subdomain: DNS hostnames cannot contain underscores, so
+`harshith_gangaraju` is out; `harshith6754` reads as a handle, not a name; and
+`harshith` is short, typeable, and inherits Qyverix's authority for the
+"Qyverix CTO" query. For ranking on his own name long-term, a personal domain
+(`harshithgangaraju.com` or similar) is stronger still, and can be pointed at
+the same deployment later by changing the one variable.
+
 Routes: `/lab/scenes` is a static reference sheet of all six environments.
 `/lab/hero` is the Phase 1 hero prototype.
 

@@ -1,9 +1,17 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { IBM_Plex_Mono, Instrument_Serif, Schibsted_Grotesk } from 'next/font/google';
 
 import { Preloader } from '@/components/chrome/Preloader';
 import { SmoothScroll } from '@/components/motion/SmoothScroll';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
+import {
+  ALTERNATE_NAMES,
+  COMPANY,
+  KNOWS_ABOUT,
+  SITE_DESCRIPTION,
+  SITE_TITLE,
+  SITE_URL,
+} from '@/lib/site';
 
 import './globals.css';
 
@@ -45,9 +53,52 @@ const labelMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Harshith Gangaraju',
-  description:
-    'Software systems at the intersection of cybersecurity, AI and infrastructure.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: '%s · Harshith Gangaraju',
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: 'Harshith Gangaraju',
+  authors: [{ name: 'Harshith Gangaraju', url: SITE_URL }],
+  creator: 'Harshith Gangaraju',
+  // Ignored by Google, still read by some engines and link previews.
+  keywords: [
+    'Harshith Gangaraju',
+    ...ALTERNATE_NAMES,
+    `${COMPANY.name} CTO`,
+    COMPANY.name,
+    ...KNOWS_ABOUT,
+    'Visakhapatnam',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'profile',
+    url: '/',
+    siteName: 'Harshith Gangaraju',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    firstName: 'Harshith',
+    lastName: 'Gangaraju',
+    username: 'hotaro6754',
+    locale: 'en_IN',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
+  category: 'technology',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#101828',
+  colorScheme: 'dark',
 };
 
 export default function RootLayout({
@@ -75,6 +126,11 @@ export default function RootLayout({
         />
       </head>
       <body>
+        {/* First focusable thing on every page: keyboard users skip the
+            pinned hero and the nav instead of tabbing through them. */}
+        <a className="skip-link" href="#top">
+          Skip to content
+        </a>
         {/* Without JavaScript the overlay can never be dismissed, so it is
             removed outright rather than trapping the page behind it. */}
         <noscript>

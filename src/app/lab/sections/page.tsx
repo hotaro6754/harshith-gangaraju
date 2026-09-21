@@ -6,7 +6,7 @@ import { Position } from '@/components/sections/Position';
 import { Practice } from '@/components/sections/Practice';
 import { Work } from '@/components/sections/Work';
 
-export const metadata = { title: 'Sections · Lab' };
+export const metadata = { title: 'Sections · Lab', robots: { index: false, follow: false } };
 
 /**
  * The descent without the hero above it.

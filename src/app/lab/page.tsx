@@ -6,7 +6,8 @@ import { Reveal } from '@/components/motion/Reveal';
 import { EXPERIMENTS, LAB_INTRO } from '@/content/lab';
 
 export const metadata = {
-  title: 'Lab · Harshith Gangaraju',
+  title: 'Lab',
+  alternates: { canonical: '/lab' },
   description: 'Experiments, unfinished things, and the reference sheets behind this site.',
 };
 
@@ -64,6 +65,7 @@ export default function LabPage() {
                       >
                         {item.live.label}
                         <span aria-hidden="true"> ↗</span>
+                        <span className="sr-only"> (opens in a new tab)</span>
                       </a>
                     )}
                   </div>

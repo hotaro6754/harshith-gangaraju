@@ -1,7 +1,7 @@
 import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
 import { ENVIRONMENTS, ENVIRONMENT_SEQUENCE } from '@/lib/environments';
 
-export const metadata = { title: 'Scenes · Lab' };
+export const metadata = { title: 'Scenes · Lab', robots: { index: false, follow: false } };
 
 /**
  * Static reference sheet. Every environment at full size, no motion, no

@@ -63,6 +63,7 @@ export function RollLink({ label, trailing, ...rest }: RollLinkProps) {
         <Row label={label} copy="under" />
       </span>
       {trailing}
+      {rest.target === '_blank' && <span className="sr-only"> (opens in a new tab)</span>}
     </motion.a>
   );
 }

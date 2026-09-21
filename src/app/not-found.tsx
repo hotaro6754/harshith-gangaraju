@@ -15,7 +15,7 @@ export const metadata = { title: 'Not found' };
  */
 export default function NotFound() {
   return (
-    <main className="lost">
+    <main className="lost" id="top">
       <div className="lost-scene" aria-hidden="true">
         <EnvironmentScene id={HERO_ENVIRONMENT} maxBlurLayers={1} />
       </div>

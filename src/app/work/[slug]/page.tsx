@@ -7,8 +7,10 @@ import { Nav } from '@/components/chrome/Nav';
 import { Cursor } from '@/components/motion/Cursor';
 import { CaseHeroMotion, CaseIndex, CaseProgress } from '@/components/case/CaseChrome';
 import { EnvironmentScene } from '@/components/environment/EnvironmentScene';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { DEPTH_LABEL, PROJECTS, PROJECT_BY_SLUG } from '@/content/projects';
 import { HERO_ENVIRONMENT } from '@/lib/hero-environment';
+import { PERSON_REF, SITE_URL, identityGraph } from '@/lib/site';
 
 import CyberOs from './bodies/cyber-os.mdx';
 import Ideaspace from './bodies/ideaspace.mdx';
@@ -44,9 +46,20 @@ export async function generateMetadata({
   const project = PROJECT_BY_SLUG[slug];
   if (!project) return {};
 
+  const title = `${project.name}, a case study`;
   return {
-    title: `${project.name} · Harshith Gangaraju`,
+    // The layout's template appends the name: "CYBER-OS, a case study · Harshith Gangaraju".
+    title,
     description: project.summary,
+    alternates: { canonical: `/work/${project.slug}` },
+    openGraph: {
+      type: 'article',
+      url: `/work/${project.slug}`,
+      title: `${title} · Harshith Gangaraju`,
+      description: project.summary,
+      authors: ['Harshith Gangaraju'],
+    },
+    twitter: { card: 'summary_large_image', title: `${title} · Harshith Gangaraju`, description: project.summary },
   };
 }
 
@@ -70,6 +83,31 @@ export default async function CaseStudyPage({
       <Nav />
       <Cursor />
       <CaseProgress />
+      <JsonLd
+        data={{
+          '@graph': [
+            ...identityGraph(),
+            {
+              '@type': 'TechArticle',
+              '@id': `${SITE_URL}/work/${project.slug}#article`,
+              headline: `${project.name}: ${project.summary}`,
+              description: project.summary,
+              url: `${SITE_URL}/work/${project.slug}`,
+              author: PERSON_REF,
+              about: project.stack.flatMap((layer) => layer.tech).slice(0, 12),
+              isPartOf: { '@id': `${SITE_URL}/#website` },
+            },
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Harshith Gangaraju', item: SITE_URL },
+                { '@type': 'ListItem', position: 2, name: 'Work', item: `${SITE_URL}/#work` },
+                { '@type': 'ListItem', position: 3, name: project.name, item: `${SITE_URL}/work/${project.slug}` },
+              ],
+            },
+          ],
+        }}
+      />
 
       <ViewTransition enter={DESCENT} exit={DESCENT} default="none">
       <main className="descent case" id="top">
@@ -155,6 +193,7 @@ export default async function CaseStudyPage({
                   <a href={link.href} target="_blank" rel="noreferrer noopener" data-cursor="Open">
                     {link.label}
                     <span aria-hidden="true"> ↗</span>
+                    <span className="sr-only"> (opens in a new tab)</span>
                   </a>
                 </li>
               ))}
