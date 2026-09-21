@@ -48,6 +48,11 @@ export function Contact() {
             data-cursor="Mail"
             label={PROFILE.email}
           />
+          {/* Work goes to the company address; everything else here. */}
+          <p className="contact-alt">
+            or, personally,{' '}
+            <RollLink href={`mailto:${PROFILE.emailPersonal}`} data-cursor="Mail" label={PROFILE.emailPersonal} />
+          </p>
         </Reveal>
       </div>
 

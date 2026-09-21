@@ -1851,6 +1851,17 @@ html.lenis body {
   padding-bottom: 0.15em;
 }
 
+.contact-alt {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--env-ink-muted);
+}
+
+.contact-alt a {
+  color: var(--env-ink);
+  border-bottom: 1px solid var(--env-rule);
+}
+
 .contact-links {
   display: flex;
   flex-wrap: wrap;

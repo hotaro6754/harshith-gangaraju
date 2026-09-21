@@ -12,6 +12,8 @@ export const PROFILE = {
   short: 'Harshith',
   github: 'hotaro6754',
   email: 'cto@qyverix.in',
+  /** Personal address, for anything that is not Qyverix business. */
+  emailPersonal: 'harshith6754@gmail.com',
   /** Broad on purpose. Precise location is not portfolio content. */
   location: 'Visakhapatnam, Andhra Pradesh',
   /** The one-line position. Everything else on the site is evidence for it. */
@@ -19,6 +21,7 @@ export const PROFILE = {
     'I build software systems at the intersection of cybersecurity, AI and infrastructure.',
   links: [
     { label: 'GitHub', href: 'https://github.com/hotaro6754' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/harshith-gangaraju-09a69638b/' },
     { label: 'Qyverix', href: 'https://qyverix.in' },
   ],
 } as const;

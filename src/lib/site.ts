@@ -53,6 +53,10 @@ export function identityGraph() {
       familyName: 'Gangaraju',
       url: SITE_URL,
       email: `mailto:${PROFILE.email}`,
+      contactPoint: [
+        { '@type': 'ContactPoint', contactType: 'work', email: PROFILE.email },
+        { '@type': 'ContactPoint', contactType: 'personal', email: PROFILE.emailPersonal },
+      ],
       jobTitle: 'Chief Technology Officer',
       worksFor: { '@id': ORG_ID },
       alumniOf: {
